@@ -26,8 +26,12 @@
   "fontScale": 0.97,
   "music": {
     "enabled": true,
+    "source": "upload",
     "title": "Nhạc nền",
+    "artist": "",
     "file": "music-admin.m4a?v=1784387125070",
+    "url": "",
+    "layout": "compact",
     "volume": 0.35,
     "loop": true,
     "autoplay": true
@@ -37,5 +41,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T15:35:38.488Z"
+  "updatedAt": "2026-07-18T16:00:40.838Z"
 }

@@ -26,7 +26,7 @@
   "fontScale": 0.97,
   "music": {
     "enabled": true,
-    "source": "spotify",
+    "source": "upload",
     "title": "Nhạc nền",
     "artist": "",
     "file": "music-admin.m4a?v=1784387125070",
@@ -41,5 +41,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T16:56:12.242Z"
+  "updatedAt": "2026-07-18T16:57:30.476Z"
 }

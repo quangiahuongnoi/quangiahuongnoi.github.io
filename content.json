@@ -27,8 +27,8 @@
   "music": {
     "enabled": true,
     "source": "spotify",
-    "title": "Tìm Em (feat.Bảo Anh)",
-    "artist": "Hngle, Bảo Anh",
+    "title": "Nhạc nền",
+    "artist": "",
     "file": "music-admin.m4a?v=1784387125070",
     "url": "https://open.spotify.com/track/6BnPsHZv1jPbPAsQsm0s5b?si=ecc4345de8694d3e",
     "layout": "compact",
@@ -41,5 +41,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T16:54:55.818Z"
+  "updatedAt": "2026-07-18T16:56:12.242Z"
 }

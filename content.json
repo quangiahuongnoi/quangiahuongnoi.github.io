@@ -21,11 +21,11 @@
     "youtube": "",
     "discord": ""
   },
-  "fontScale": 1,
+  "fontScale": 0.95,
   "colors": {
     "background": "#070707",
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T14:14:15.572Z"
+  "updatedAt": "2026-07-18T14:51:45.344Z"
 }

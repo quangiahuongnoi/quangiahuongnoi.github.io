@@ -31,7 +31,7 @@
     "artist": "Hngle, Bảo Anh",
     "file": "music-admin.m4a?v=1784387125070",
     "url": "https://open.spotify.com/track/6ELX356o21U28T73ZxruUj?si=e5409a765e184bc8",
-    "layout": "full",
+    "layout": "compact",
     "volume": 0.35,
     "loop": true,
     "autoplay": false
@@ -41,5 +41,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T16:48:15.769Z"
+  "updatedAt": "2026-07-18T16:48:35.612Z"
 }

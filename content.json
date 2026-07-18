@@ -13,7 +13,7 @@
     "youtube": "https://www.youtube.com/@quangiahuongnoi",
     "discord": "https://discord.gg/dqw9FkgNDY"
   },
-  "avatarImage": "avatar.webp",
+  "avatarImage": "avatar-transparent.png?v=20260718-1",
   "qrImage": "",
   "shareImage": "share-preview.jpg?v=20260718-1",
   "socialIcons": {
@@ -37,5 +37,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-07-18T15:05:28.351Z"
+  "updatedAt": "2026-07-18T15:31:22.647Z"
 }

@@ -1,9 +1,13 @@
 {
   "siteName": "Quản gia hướng nội🐧",
+  "profileLabel": "Profile cá nhân",
   "role": "Nhà sáng tạo nội dung và streamer game",
   "description": "Game gi cung play🐧💧 | Live đa khung giờ - đa dạng game",
   "aboutTitle": "Một góc nhỏ dành cho game và viewer.",
   "aboutText": "Xin chào, mình là Quản gia hướng nội. Đây là nơi tổng hợp các kênh chính thức và những cách nhanh nhất để kết nối với mình.",
+  "footerEmail": "quangiahuongnoi@gmail.com",
+  "shareTitle": "Quản gia hướng nội | Profile cá nhân",
+  "shareDescription": "Profile và các kênh chính thức của Quản gia hướng nội — nhà sáng tạo nội dung và streamer game.",
   "links": {
     "tiktok": "https://www.tiktok.com/@quangiahuongnoi",
     "youtube": "https://www.youtube.com/@quangiahuongnoi",
@@ -11,6 +15,13 @@
   },
   "avatarImage": "avatar.webp",
   "qrImage": "",
+  "shareImage": "share-preview.jpg?v=20260718-1",
+  "socialIcons": {
+    "tiktok": "",
+    "youtube": "",
+    "discord": ""
+  },
+  "fontScale": 1,
   "colors": {
     "background": "#070707",
     "primary": "#e10600",

@@ -1,0 +1,10 @@
+name = "quangiahuongnoi-admin-api"
+main = "worker.js"
+compatibility_date = "2026-07-18"
+
+[vars]
+ALLOWED_ORIGIN = "https://quangiahuongnoi.github.io"
+GITHUB_OWNER = "quangiahuongnoi"
+GITHUB_REPO = "quangiahuongnoi"
+GITHUB_BRANCH = "main"
+SITE_URL = "https://quangiahuongnoi.github.io/quangiahuongnoi"

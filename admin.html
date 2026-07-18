@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#070707">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https:;">
   <title>Quản trị website | Quản gia hướng nội</title>
   <style>
     :root{--bg:#070707;--panel:#111;--panel2:#171717;--red:#e10600;--hot:#ff2a1a;--white:#f5f5f5;--muted:#a6a6a6;--line:#2b2b2b;--ok:#45d483;--danger:#ff625c}
-    *{box-sizing:border-box}html{background:var(--bg);color-scheme:dark}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% 8%,#e1060029,transparent 28%),var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea{font:inherit}a{color:inherit}.shell{width:min(1120px,calc(100% - 32px));margin:auto;padding:28px 0 70px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:38px}.brand{display:flex;align-items:center;gap:13px;font-weight:800}.brand img{width:42px;height:42px;object-fit:cover;border:2px solid var(--red);border-radius:50%}.view{color:#d7d7d7;text-decoration:none;font-size:14px}.view:hover{color:var(--hot)}.panel{border:1px solid var(--line);border-radius:20px;background:#111111e8;box-shadow:0 24px 80px #0008;overflow:hidden}.login{max-width:600px;margin:9vh auto 0;padding:clamp(25px,5vw,48px)}.kicker{margin:0 0 12px;color:var(--hot);font:700 12px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}h1{margin:0;font-size:clamp(34px,5vw,56px);line-height:1;letter-spacing:-.05em}h2{margin:0;font-size:24px;letter-spacing:-.025em}.sub{margin:18px 0 30px;color:var(--muted);line-height:1.65}.notice{margin:20px 0 0;padding:14px 16px;border:1px solid #ff2a1a48;border-radius:12px;background:#e1060010;color:#cacaca;font-size:13px;line-height:1.55}.field{display:grid;gap:8px}.field label{color:#ddd;font-size:13px;font-weight:700}.field small{color:#7e7e7e;line-height:1.45}input,textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:#090909;color:#fff;padding:13px 14px;outline:none;transition:.18s}input:focus,textarea:focus{border-color:var(--hot);box-shadow:0 0 0 3px #e1060024}textarea{min-height:112px;resize:vertical}.token-row{display:grid;grid-template-columns:1fr auto;gap:10px}.btn{min-height:46px;border:0;border-radius:11px;padding:0 20px;background:linear-gradient(135deg,#b20a04,var(--red));color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 30px #e1060025;transition:.18s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:wait;transform:none}.btn.secondary{border:1px solid var(--line);background:#171717;box-shadow:none;color:#ddd}.status{min-height:22px;margin-top:14px;color:var(--muted);font-size:13px}.status.ok{color:var(--ok)}.status.err{color:var(--danger)}.editor[hidden],.login[hidden]{display:none}.editor{display:grid;gap:18px}.editor-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:26px 28px}.editor-head p{margin:8px 0 0;color:var(--muted);font-size:14px}.editor-actions{display:flex;gap:10px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.block{padding:27px;border:1px solid var(--line);border-radius:18px;background:#101010}.block h2{margin-bottom:22px}.fields{display:grid;gap:18px}.wide{grid-column:1/-1}.images{display:grid;grid-template-columns:1fr 1fr;gap:18px}.image-field{display:grid;grid-template-columns:112px 1fr;gap:18px;align-items:center}.preview{width:112px;height:112px;display:grid;place-items:center;border:1px dashed #555;border-radius:16px;background:#080808;overflow:hidden;color:#666;font-size:12px;text-align:center}.preview.qr{height:138px;background:#fff}.preview img{width:100%;height:100%;object-fit:cover}.preview.qr img{object-fit:contain}.file{padding:10px;font-size:12px}.colors{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.color-row{display:grid;grid-template-columns:46px 1fr;gap:9px}.color-row input[type=color]{height:46px;padding:4px}.savebar{position:sticky;z-index:5;bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;border:1px solid #3a3a3a;border-radius:16px;background:#101010ed;backdrop-filter:blur(16px);box-shadow:0 18px 50px #0009}.savebar .status{margin:0}.savebar .btn{min-width:180px}.help{color:var(--muted);font-size:13px;line-height:1.6}.help a{color:#fff}@media(max-width:760px){.shell{width:min(100% - 22px,1120px);padding-top:18px}.top{margin-bottom:22px}.view{font-size:12px}.token-row,.form-grid,.images,.colors{grid-template-columns:1fr}.wide{grid-column:auto}.editor-head{align-items:flex-start;flex-direction:column}.editor-actions{width:100%}.editor-actions .btn{flex:1}.block{padding:21px}.image-field{grid-template-columns:90px 1fr}.preview{width:90px;height:90px}.preview.qr{height:112px}.savebar{align-items:stretch;flex-direction:column}.savebar .btn{width:100%}}
+    *{box-sizing:border-box}html{background:var(--bg);color-scheme:dark}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% 8%,#e1060029,transparent 28%),var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea{font:inherit}a{color:inherit}.shell{width:min(1160px,calc(100% - 32px));margin:auto;padding:28px 0 70px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:38px}.brand{display:flex;align-items:center;gap:13px;font-weight:800}.brand img{width:42px;height:42px;object-fit:cover;border:2px solid var(--red);border-radius:50%}.view{color:#d7d7d7;text-decoration:none;font-size:14px}.view:hover{color:var(--hot)}.panel{border:1px solid var(--line);border-radius:20px;background:#111111e8;box-shadow:0 24px 80px #0008;overflow:hidden}.login{max-width:650px;margin:6vh auto 0;padding:clamp(25px,5vw,48px)}.kicker{margin:0 0 12px;color:var(--hot);font:700 12px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}h1{margin:0;font-size:clamp(34px,5vw,56px);line-height:1;letter-spacing:-.05em}h2{margin:0;font-size:24px;letter-spacing:-.025em}.sub{margin:18px 0 30px;color:var(--muted);line-height:1.65}.notice{margin:20px 0 0;padding:14px 16px;border:1px solid #ff2a1a48;border-radius:12px;background:#e1060010;color:#cacaca;font-size:13px;line-height:1.55}.field{display:grid;gap:8px}.field label{color:#ddd;font-size:13px;font-weight:700}.field small{color:#7e7e7e;line-height:1.45}input,textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:#090909;color:#fff;padding:13px 14px;outline:none;transition:.18s}input:focus,textarea:focus{border-color:var(--hot);box-shadow:0 0 0 3px #e1060024}textarea{min-height:112px;resize:vertical}.login-fields{display:grid;gap:17px}.token-row{display:grid;grid-template-columns:1fr auto;gap:10px}.btn{min-height:46px;border:0;border-radius:11px;padding:0 20px;background:linear-gradient(135deg,#b20a04,var(--red));color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 30px #e1060025;transition:.18s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:wait;transform:none}.btn.secondary{border:1px solid var(--line);background:#171717;box-shadow:none;color:#ddd}.status{min-height:22px;margin-top:14px;color:var(--muted);font-size:13px}.status.ok{color:var(--ok)}.status.err{color:var(--danger)}.editor[hidden],.login[hidden]{display:none}.editor{display:grid;gap:18px}.editor-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:26px 28px}.editor-head p{margin:8px 0 0;color:var(--muted);font-size:14px}.editor-actions{display:flex;gap:10px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.block{padding:27px;border:1px solid var(--line);border-radius:18px;background:#101010}.block h2{margin-bottom:22px}.fields{display:grid;gap:18px}.wide{grid-column:1/-1}.images{display:grid;grid-template-columns:1fr 1fr;gap:22px}.image-field{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:center}.preview{width:120px;height:120px;display:grid;place-items:center;border:1px dashed #555;border-radius:16px;background:#080808;overflow:hidden;color:#666;font-size:12px;text-align:center}.preview.qr{height:145px;background:#fff}.preview.share{width:200px;height:105px}.preview.icon{width:70px;height:70px}.preview img{width:100%;height:100%;object-fit:cover}.preview.qr img,.preview.icon img{object-fit:contain}.file{padding:10px;font-size:12px}.colors{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.color-row{display:grid;grid-template-columns:46px 1fr;gap:9px}.color-row input[type=color]{height:46px;padding:4px}.social-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.social-icon{display:grid;grid-template-columns:70px 1fr;gap:13px;align-items:center}.range-row{display:grid;grid-template-columns:1fr 74px;gap:12px;align-items:center}.range-row input[type=range]{padding:0}.range-value{text-align:center;padding:11px;border:1px solid var(--line);border-radius:10px;background:#090909;font-weight:800}.savebar{position:sticky;z-index:5;bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;border:1px solid #3a3a3a;border-radius:16px;background:#101010ed;backdrop-filter:blur(16px);box-shadow:0 18px 50px #0009}.savebar .status{margin:0}.savebar .btn{min-width:190px}.help{color:var(--muted);font-size:13px;line-height:1.6}.help a{color:#fff}.setup-link{color:#fff}.separator{height:1px;background:var(--line);margin:3px 0}@media(max-width:800px){.shell{width:min(100% - 22px,1160px);padding-top:18px}.top{margin-bottom:22px}.view{font-size:12px}.token-row,.form-grid,.images,.colors,.social-icons{grid-template-columns:1fr}.wide{grid-column:auto}.editor-head{align-items:flex-start;flex-direction:column}.editor-actions{width:100%}.editor-actions .btn{flex:1}.block{padding:21px}.image-field{grid-template-columns:90px 1fr}.preview{width:90px;height:90px}.preview.qr{height:112px}.preview.share{width:150px;height:79px}.social-icon{grid-template-columns:70px 1fr}.savebar{align-items:stretch;flex-direction:column}.savebar .btn{width:100%}}
   </style>
 </head>
 <body>
@@ -19,27 +21,31 @@
     </div>
 
     <section class="panel login" id="login">
-      <p class="kicker">Khu vực riêng tư</p>
-      <h1>Đăng nhập để chỉnh sửa</h1>
-      <p class="sub">Dùng GitHub Fine-grained Personal Access Token của bạn. Token chỉ được giữ trong bộ nhớ của tab này và sẽ mất khi bạn đóng hoặc tải lại trang.</p>
-      <form id="login-form">
+      <p class="kicker">Đăng nhập bảo mật</p>
+      <h1>Chỉnh sửa website</h1>
+      <p class="sub">Trang quản trị dùng mật khẩu riêng qua Cloudflare Worker. GitHub token không được nhập hoặc lưu trong trình duyệt.</p>
+      <form id="login-form" class="login-fields">
         <div class="field">
-          <label for="token">GitHub token</label>
+          <label for="api-url">URL Cloudflare Worker</label>
+          <input id="api-url" type="url" inputmode="url" autocomplete="url" placeholder="https://quangiahuongnoi-admin-api....workers.dev" required>
+          <small>Chỉ cần nhập lần đầu. URL này không phải thông tin bí mật.</small>
+        </div>
+        <div class="field">
+          <label for="password">Mật khẩu quản trị</label>
           <div class="token-row">
-            <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..." required>
+            <input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu riêng của bạn" minlength="12" required>
             <button class="btn" id="login-button" type="submit">Đăng nhập</button>
           </div>
-          <small>Token cần quyền Contents: Read and write, chỉ dành cho repo quangiahuongnoi.</small>
         </div>
       </form>
       <div class="status" id="login-status" role="status"></div>
-      <div class="notice">Không gửi token cho bất kỳ ai và không nhập token trên website khác. Trang này không lưu token vào localStorage, cookie hay mã nguồn.</div>
+      <div class="notice">Mật khẩu chỉ được gửi tới Worker của bạn qua HTTPS và không được lưu trong trình duyệt. Nếu chưa tạo Worker, xem <a class="setup-link" href="https://github.com/quangiahuongnoi/quangiahuongnoi/blob/main/worker/README.md" target="_blank" rel="noreferrer">hướng dẫn thiết lập</a>.</div>
     </section>
 
     <section class="editor" id="editor" hidden>
       <div class="panel editor-head">
-        <div><p class="kicker">Đã kết nối GitHub</p><h1>Chỉnh sửa nội dung</h1><p>Mỗi lần lưu sẽ tạo một commit mới và tự xuất bản qua GitHub Pages.</p></div>
-        <div class="editor-actions"><button class="btn secondary" id="reload" type="button">Tải lại</button><button class="btn secondary" id="logout" type="button">Đăng xuất</button></div>
+        <div><p class="kicker">Đã kết nối Cloudflare Worker</p><h1>Chỉnh sửa nội dung</h1><p>Mỗi lần lưu sẽ cập nhật repo và tự xuất bản qua GitHub Pages.</p></div>
+        <div class="editor-actions"><button class="btn secondary" id="reload" type="button">Tải lại</button><button class="btn secondary" id="change-api" type="button">Đổi Worker</button><button class="btn secondary" id="logout" type="button">Đăng xuất</button></div>
       </div>
 
       <form id="content-form" class="form-grid">
@@ -47,16 +53,18 @@
           <h2>Thông tin chính</h2>
           <div class="fields">
             <div class="field"><label for="siteName">Tên hiển thị</label><input id="siteName" maxlength="80" required></div>
+            <div class="field"><label for="profileLabel">Nhãn trang</label><input id="profileLabel" maxlength="60" placeholder="Profile cá nhân" required></div>
             <div class="field"><label for="role">Vai trò / câu giới thiệu</label><input id="role" maxlength="140" required></div>
             <div class="field"><label for="description">Mô tả ngắn đầu trang</label><textarea id="description" maxlength="320" required></textarea></div>
           </div>
         </section>
 
         <section class="block">
-          <h2>Phần giới thiệu</h2>
+          <h2>Giới thiệu &amp; liên hệ</h2>
           <div class="fields">
-            <div class="field"><label for="aboutTitle">Tiêu đề</label><input id="aboutTitle" maxlength="140" required></div>
-            <div class="field"><label for="aboutText">Nội dung</label><textarea id="aboutText" maxlength="600" required></textarea></div>
+            <div class="field"><label for="aboutTitle">Tiêu đề giới thiệu</label><input id="aboutTitle" maxlength="160" required></div>
+            <div class="field"><label for="aboutText">Nội dung giới thiệu</label><textarea id="aboutText" maxlength="800" required></textarea></div>
+            <div class="field"><label for="footerEmail">Email ở chân trang</label><input id="footerEmail" type="email" maxlength="160" required></div>
           </div>
         </section>
 
@@ -70,20 +78,52 @@
         </section>
 
         <section class="block wide">
-          <h2>Hình ảnh</h2>
+          <h2>Hình ảnh chính</h2>
           <div class="images">
             <div class="image-field">
               <div class="preview"><img id="avatar-preview" src="avatar.webp" alt="Xem trước ảnh đại diện"></div>
-              <div class="field"><label for="avatar-file">Ảnh đại diện</label><input class="file" id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp"><small>Ảnh sẽ tự thu nhỏ để tải nhanh. Để trống nếu không đổi.</small></div>
+              <div class="field"><label for="avatar-file">Ảnh đại diện</label><input class="file" id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp"><small>Tự tối ưu tối đa 800 px.</small></div>
             </div>
             <div class="image-field">
               <div class="preview qr" id="qr-box"><span>QR hiện tại</span><img id="qr-preview" alt="Xem trước QR" hidden></div>
-              <div class="field"><label for="qr-file">QR WeScan</label><input class="file" id="qr-file" type="file" accept="image/png,image/jpeg,image/webp"><small>Nên dùng ảnh rõ nét, nền sáng. Để trống nếu không đổi.</small></div>
+              <div class="field"><label for="qr-file">QR WeScan</label><input class="file" id="qr-file" type="file" accept="image/png,image/jpeg,image/webp"><small>Giữ rõ nét, tối đa 1000 px.</small></div>
             </div>
           </div>
         </section>
 
         <section class="block wide">
+          <h2>Xem trước khi chia sẻ link</h2>
+          <div class="images">
+            <div class="image-field">
+              <div class="preview share"><img id="share-preview" src="share-preview.jpg" alt="Ảnh chia sẻ"></div>
+              <div class="field"><label for="share-file">Ảnh chia sẻ</label><input class="file" id="share-file" type="file" accept="image/png,image/jpeg,image/webp"><small>Tự cắt về tỷ lệ 1200 × 630.</small></div>
+            </div>
+            <div class="fields">
+              <div class="field"><label for="shareTitle">Tiêu đề chia sẻ</label><input id="shareTitle" maxlength="140" required></div>
+              <div class="field"><label for="shareDescription">Mô tả chia sẻ</label><textarea id="shareDescription" maxlength="320" required></textarea></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="block wide">
+          <h2>Biểu tượng mạng xã hội</h2>
+          <div class="social-icons">
+            <div class="social-icon"><div class="preview icon"><span>TikTok</span><img id="tiktok-icon-preview" alt="" hidden></div><div class="field"><label for="tiktok-icon-file">Icon TikTok</label><input class="file" id="tiktok-icon-file" type="file" accept="image/png,image/jpeg,image/webp"></div></div>
+            <div class="social-icon"><div class="preview icon"><span>YouTube</span><img id="youtube-icon-preview" alt="" hidden></div><div class="field"><label for="youtube-icon-file">Icon YouTube</label><input class="file" id="youtube-icon-file" type="file" accept="image/png,image/jpeg,image/webp"></div></div>
+            <div class="social-icon"><div class="preview icon"><span>Discord</span><img id="discord-icon-preview" alt="" hidden></div><div class="field"><label for="discord-icon-file">Icon Discord</label><input class="file" id="discord-icon-file" type="file" accept="image/png,image/jpeg,image/webp"></div></div>
+          </div>
+        </section>
+
+        <section class="block">
+          <h2>Cỡ chữ</h2>
+          <div class="field">
+            <label for="fontScale">Tỷ lệ chữ toàn website</label>
+            <div class="range-row"><input id="fontScale" type="range" min="0.9" max="1.2" step="0.01"><output class="range-value" id="fontScaleValue">100%</output></div>
+            <small>Khuyến nghị từ 100% đến 110% để giữ bố cục đẹp trên điện thoại.</small>
+          </div>
+        </section>
+
+        <section class="block">
           <h2>Màu sắc</h2>
           <div class="colors">
             <div class="field"><label for="background">Màu nền</label><div class="color-row"><input id="background-picker" type="color"><input id="background" maxlength="7" pattern="#[0-9a-fA-F]{6}" required></div></div>
@@ -103,246 +143,238 @@
   <script>
   (function(){
     "use strict";
-    var REPO = "quangiahuongnoi/quangiahuongnoi";
-    var BRANCH = "main";
-    var API = "https://api.github.com/repos/" + REPO + "/contents/content.json";
-    var token = "";
-    var currentSha = "";
+    var apiUrl = "";
+    var sessionToken = "";
     var state = null;
+    var pendingImages = {};
     var dirty = false;
-
     var $ = function(id){ return document.getElementById(id); };
     var login = $("login"), editor = $("editor");
     var loginStatus = $("login-status"), saveStatus = $("save-status");
     var saveButton = $("save"), loginButton = $("login-button");
 
-    function headers(){
-      return {
-        "Accept":"application/vnd.github+json",
-        "Authorization":"Bearer " + token,
-        "X-GitHub-Api-Version":"2022-11-28"
-      };
+    $("api-url").value = localStorage.getItem("adminWorkerUrl") || "";
+
+    function setStatus(node,message,type){
+      node.textContent=message;
+      node.className="status"+(type?" "+type:"");
     }
-    function setStatus(node, message, type){
-      node.textContent = message;
-      node.className = "status" + (type ? " " + type : "");
+    function normalizeApi(value){
+      try{
+        var url=new URL(value.trim());
+        if(url.protocol!=="https:") throw new Error();
+        return url.origin+url.pathname.replace(/\/+$/,"");
+      }catch(e){ throw new Error("URL Worker phải là địa chỉ HTTPS hợp lệ."); }
     }
-    function decodeBase64(value){
-      var binary = atob(value.replace(/\n/g,""));
-      var bytes = new Uint8Array(binary.length);
-      for(var i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
-      return new TextDecoder().decode(bytes);
-    }
-    function encodeBase64(value){
-      var bytes = new TextEncoder().encode(value);
-      var binary = "";
-      var step = 32768;
-      for(var i=0;i<bytes.length;i+=step){
-        binary += String.fromCharCode.apply(null, bytes.subarray(i, i+step));
-      }
-      return btoa(binary);
-    }
-    async function apiRequest(url, options){
-      var response = await fetch(url, options || {headers:headers(), cache:"no-store"});
+    async function request(path,options){
+      options=options||{};
+      options.headers=Object.assign({"Content-Type":"application/json"},options.headers||{});
+      if(sessionToken) options.headers.Authorization="Bearer "+sessionToken;
+      options.cache="no-store";
+      var response=await fetch(apiUrl+path,options);
+      var data={};
+      try{ data=await response.json(); }catch(e){}
       if(!response.ok){
-        var detail = "";
-        try{ detail = (await response.json()).message || ""; }catch(e){}
-        var error = new Error(detail || ("GitHub trả về lỗi " + response.status));
-        error.status = response.status;
+        var error=new Error(data.error||("Máy chủ trả về lỗi "+response.status));
+        error.status=response.status;
         throw error;
       }
-      return response.json();
+      return data;
+    }
+    function assetUrl(value){
+      if(!value) return "";
+      try{ return new URL(value,location.href).href; }catch(e){ return ""; }
     }
     async function loadContent(){
-      setStatus(saveStatus, "Đang tải dữ liệu…", "");
-      var file = await apiRequest(API + "?ref=" + encodeURIComponent(BRANCH) + "&t=" + Date.now(), {headers:headers(), cache:"no-store"});
-      currentSha = file.sha;
-      state = JSON.parse(decodeBase64(file.content));
+      setStatus(saveStatus,"Đang tải dữ liệu…","");
+      var result=await request("/content");
+      state=withDefaults(result.content||{});
+      pendingImages={};
       fillForm();
-      dirty = false;
-      setStatus(saveStatus, "Nội dung đã được tải.", "ok");
+      dirty=false;
+      setStatus(saveStatus,"Nội dung đã được tải.","ok");
+    }
+    function withDefaults(value){
+      value=value||{};
+      value.links=value.links||{};
+      value.colors=value.colors||{};
+      value.socialIcons=value.socialIcons||{};
+      return Object.assign({
+        profileLabel:"Profile cá nhân",
+        footerEmail:"quangiahuongnoi@gmail.com",
+        shareTitle:(value.siteName||"Quản gia hướng nội")+" | Profile cá nhân",
+        shareDescription:value.description||"Profile và các kênh chính thức của Quản gia hướng nội.",
+        avatarImage:"avatar.webp",
+        qrImage:"",
+        shareImage:"share-preview.jpg",
+        fontScale:1
+      },value);
     }
     function fillForm(){
-      ["siteName","role","description","aboutTitle","aboutText"].forEach(function(key){ $(key).value = state[key] || ""; });
-      $("tiktok").value = (state.links && state.links.tiktok) || "";
-      $("youtube").value = (state.links && state.links.youtube) || "";
-      $("discord").value = (state.links && state.links.discord) || "";
+      ["siteName","profileLabel","role","description","aboutTitle","aboutText","footerEmail","shareTitle","shareDescription"].forEach(function(key){ $(key).value=state[key]||""; });
+      $("tiktok").value=state.links.tiktok||"";
+      $("youtube").value=state.links.youtube||"";
+      $("discord").value=state.links.discord||"";
       ["background","primary","accent"].forEach(function(key){
-        var value = (state.colors && state.colors[key]) || ({background:"#070707",primary:"#e10600",accent:"#ff2a1a"})[key];
-        $(key).value = value;
-        $(key+"-picker").value = value;
+        var fallback={background:"#070707",primary:"#e10600",accent:"#ff2a1a"}[key];
+        var value=state.colors[key]||fallback;
+        $(key).value=value;$(key+"-picker").value=value;
       });
-      if(state.avatarImage) $("avatar-preview").src = state.avatarImage;
-      if(state.qrImage){
-        $("qr-preview").src = state.qrImage;
-        $("qr-preview").hidden = false;
-        $("qr-box").querySelector("span").hidden = true;
+      $("fontScale").value=state.fontScale||1;
+      updateScaleLabel();
+      showPreview("avatar-preview",state.avatarImage,false);
+      showPreview("qr-preview",state.qrImage,true);
+      showPreview("share-preview",state.shareImage,false);
+      ["tiktok","youtube","discord"].forEach(function(key){ showIconPreview(key,state.socialIcons[key]); });
+    }
+    function showPreview(id,value,hasPlaceholder){
+      var img=$(id);
+      if(value){
+        img.src=assetUrl(value);img.hidden=false;
+        if(hasPlaceholder) img.parentElement.querySelector("span").hidden=true;
       }else{
-        $("qr-preview").hidden = true;
-        $("qr-box").querySelector("span").hidden = false;
+        if(hasPlaceholder){img.hidden=true;img.parentElement.querySelector("span").hidden=false;}
       }
+    }
+    function showIconPreview(key,value){
+      var img=$(key+"-icon-preview");
+      var span=img.parentElement.querySelector("span");
+      if(value){img.src=assetUrl(value);img.hidden=false;span.hidden=true;}
+      else{img.hidden=true;span.hidden=false;}
     }
     function collect(){
       return {
         siteName:$("siteName").value.trim(),
+        profileLabel:$("profileLabel").value.trim(),
         role:$("role").value.trim(),
         description:$("description").value.trim(),
         aboutTitle:$("aboutTitle").value.trim(),
         aboutText:$("aboutText").value.trim(),
-        links:{
-          tiktok:$("tiktok").value.trim(),
-          youtube:$("youtube").value.trim(),
-          discord:$("discord").value.trim()
-        },
-        avatarImage:state.avatarImage || "avatar.webp",
-        qrImage:state.qrImage || "",
-        colors:{
-          background:$("background").value.trim(),
-          primary:$("primary").value.trim(),
-          accent:$("accent").value.trim()
-        },
-        updatedAt:new Date().toISOString()
+        footerEmail:$("footerEmail").value.trim(),
+        shareTitle:$("shareTitle").value.trim(),
+        shareDescription:$("shareDescription").value.trim(),
+        links:{tiktok:$("tiktok").value.trim(),youtube:$("youtube").value.trim(),discord:$("discord").value.trim()},
+        avatarImage:state.avatarImage||"avatar.webp",
+        qrImage:state.qrImage||"",
+        shareImage:state.shareImage||"share-preview.jpg",
+        socialIcons:Object.assign({},state.socialIcons||{}),
+        fontScale:Number($("fontScale").value),
+        colors:{background:$("background").value.trim(),primary:$("primary").value.trim(),accent:$("accent").value.trim()}
       };
     }
-    function validUrl(value){
-      try{ var u = new URL(value); return u.protocol === "https:" || u.protocol === "http:"; }catch(e){ return false; }
+    function updateScaleLabel(){ $("fontScaleValue").textContent=Math.round(Number($("fontScale").value)*100)+"%"; }
+    async function imageBitmap(file){
+      if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("Vui lòng chọn ảnh PNG, JPG hoặc WebP.");
+      if(file.size>10*1024*1024) throw new Error("Ảnh lớn hơn 10 MB.");
+      return createImageBitmap(file);
     }
-    function validate(data){
-      if(!data.siteName || !data.role || !data.description || !data.aboutTitle || !data.aboutText) return "Vui lòng điền đầy đủ nội dung.";
-      if(!validUrl(data.links.tiktok) || !validUrl(data.links.youtube) || !validUrl(data.links.discord)) return "Một liên kết mạng xã hội chưa hợp lệ.";
-      var hex = /^#[0-9a-fA-F]{6}$/;
-      if(!hex.test(data.colors.background) || !hex.test(data.colors.primary) || !hex.test(data.colors.accent)) return "Màu sắc phải có dạng #RRGGBB.";
-      return "";
-    }
-    async function resizeImage(file, kind){
-      if(!file || !file.type.match(/^image\/(png|jpeg|webp)$/)) throw new Error("Vui lòng chọn ảnh PNG, JPG hoặc WebP.");
-      if(file.size > 8*1024*1024) throw new Error("Ảnh lớn hơn 8 MB. Vui lòng chọn ảnh nhỏ hơn.");
-      var bitmap = await createImageBitmap(file);
-      var max = kind === "qr" ? 1000 : 800;
-      var scale = Math.min(1, max/Math.max(bitmap.width, bitmap.height));
-      var canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(bitmap.width*scale));
-      canvas.height = Math.max(1, Math.round(bitmap.height*scale));
-      var ctx = canvas.getContext("2d");
-      ctx.imageSmoothingEnabled = kind !== "qr";
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+    async function resizeImage(file,kind){
+      var bitmap=await imageBitmap(file);
+      var canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+      var mime="image/webp",quality=.88;
+      if(kind==="share"){
+        canvas.width=1200;canvas.height=630;mime="image/jpeg";
+        var scale=Math.max(canvas.width/bitmap.width,canvas.height/bitmap.height);
+        var width=bitmap.width*scale,height=bitmap.height*scale;
+        ctx.fillStyle="#000";ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(bitmap,(canvas.width-width)/2,(canvas.height-height)/2,width,height);
+      }else if(kind==="icon"){
+        canvas.width=256;canvas.height=256;
+        var iconScale=Math.min(canvas.width/bitmap.width,canvas.height/bitmap.height);
+        var iw=bitmap.width*iconScale,ih=bitmap.height*iconScale;
+        ctx.drawImage(bitmap,(canvas.width-iw)/2,(canvas.height-ih)/2,iw,ih);
+      }else{
+        var max=kind==="qr"?1000:800;
+        var ratio=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+        canvas.width=Math.max(1,Math.round(bitmap.width*ratio));
+        canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
+        ctx.imageSmoothingEnabled=kind!=="qr";ctx.imageSmoothingQuality="high";
+        ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+        if(kind==="qr") mime="image/png";
+      }
       if(bitmap.close) bitmap.close();
-      var mime = kind === "qr" ? "image/png" : "image/webp";
-      var data = canvas.toDataURL(mime, kind === "qr" ? undefined : .86);
-      if(data.length > 700000) throw new Error("Ảnh sau khi xử lý vẫn quá lớn. Vui lòng chọn ảnh nhỏ hơn.");
+      var data=canvas.toDataURL(mime,quality);
+      if(data.length>900000) throw new Error("Ảnh sau khi xử lý vẫn quá lớn.");
       return data;
     }
-    async function chooseImage(input, kind){
-      if(!input.files || !input.files[0]) return;
+    async function chooseImage(input,kind,pendingKey,previewId){
+      if(!input.files||!input.files[0]) return;
       try{
-        setStatus(saveStatus, "Đang xử lý ảnh…", "");
-        var data = await resizeImage(input.files[0], kind);
-        if(kind === "avatar"){
-          state.avatarImage = data;
-          $("avatar-preview").src = data;
-        }else{
-          state.qrImage = data;
-          $("qr-preview").src = data;
-          $("qr-preview").hidden = false;
-          $("qr-box").querySelector("span").hidden = true;
-        }
-        dirty = true;
-        setStatus(saveStatus, "Ảnh đã sẵn sàng. Hãy bấm Lưu & xuất bản.", "");
-      }catch(error){
-        input.value = "";
-        setStatus(saveStatus, error.message, "err");
-      }
+        setStatus(saveStatus,"Đang xử lý ảnh…","");
+        var data=await resizeImage(input.files[0],kind);
+        pendingImages[pendingKey]=data;
+        var img=$(previewId);img.src=data;img.hidden=false;
+        var span=img.parentElement.querySelector("span");if(span) span.hidden=true;
+        dirty=true;setStatus(saveStatus,"Ảnh đã sẵn sàng. Hãy bấm Lưu & xuất bản.","");
+      }catch(error){input.value="";setStatus(saveStatus,error.message,"err");}
+    }
+    function markDirty(){dirty=true;setStatus(saveStatus,"Có thay đổi chưa lưu.","");}
+    function logout(message){
+      sessionToken="";state=null;pendingImages={};dirty=false;
+      editor.hidden=true;login.hidden=false;
+      $("password").value="";
+      setStatus(loginStatus,message||"Đã đăng xuất.","ok");
     }
 
-    $("login-form").addEventListener("submit", async function(event){
-      event.preventDefault();
-      token = $("token").value.trim();
-      if(!token) return;
-      loginButton.disabled = true;
-      setStatus(loginStatus, "Đang kiểm tra quyền truy cập…", "");
+    $("login-form").addEventListener("submit",async function(event){
+      event.preventDefault();loginButton.disabled=true;
       try{
+        apiUrl=normalizeApi($("api-url").value);
+        setStatus(loginStatus,"Đang kiểm tra mật khẩu…","");
+        var result=await request("/login",{method:"POST",body:JSON.stringify({password:$("password").value})});
+        sessionToken=result.token;
+        localStorage.setItem("adminWorkerUrl",apiUrl);
+        $("password").value="";
+        login.hidden=true;editor.hidden=false;
         await loadContent();
-        $("token").value = "";
-        login.hidden = true;
-        editor.hidden = false;
       }catch(error){
-        token = "";
-        var message = error.status === 401 ? "Token không đúng hoặc đã hết hạn." :
-          error.status === 403 ? "Token chưa có quyền truy cập repo này." :
-          error.status === 404 ? "Không tìm thấy content.json hoặc token chưa được cấp quyền repo." :
-          error.message;
-        setStatus(loginStatus, message, "err");
-      }finally{
-        loginButton.disabled = false;
-      }
+        sessionToken="";
+        setStatus(loginStatus,error.message,"err");
+        login.hidden=false;editor.hidden=true;
+      }finally{loginButton.disabled=false;}
     });
 
-    $("content-form").addEventListener("input", function(event){
-      if(event.target.type === "color") return;
-      dirty = true;
-      setStatus(saveStatus, "Có thay đổi chưa lưu.", "");
+    $("content-form").addEventListener("input",function(event){
+      if(event.target.type==="color"||event.target.type==="range") return;
+      markDirty();
     });
     ["background","primary","accent"].forEach(function(key){
-      $(key+"-picker").addEventListener("input", function(){
-        $(key).value = this.value;
-        dirty = true;
-        setStatus(saveStatus, "Có thay đổi chưa lưu.", "");
-      });
-      $(key).addEventListener("input", function(){
-        if(/^#[0-9a-fA-F]{6}$/.test(this.value)) $(key+"-picker").value = this.value;
-      });
+      $(key+"-picker").addEventListener("input",function(){$(key).value=this.value;markDirty();});
+      $(key).addEventListener("input",function(){if(/^#[0-9a-fA-F]{6}$/.test(this.value)) $(key+"-picker").value=this.value;});
     });
-    $("avatar-file").addEventListener("change", function(){ chooseImage(this,"avatar"); });
-    $("qr-file").addEventListener("change", function(){ chooseImage(this,"qr"); });
+    $("fontScale").addEventListener("input",function(){updateScaleLabel();markDirty();});
 
-    saveButton.addEventListener("click", async function(){
-      var form = $("content-form");
-      if(!form.reportValidity()) return;
-      var data = collect();
-      var problem = validate(data);
-      if(problem){ setStatus(saveStatus, problem, "err"); return; }
-      saveButton.disabled = true;
-      setStatus(saveStatus, "Đang lưu lên GitHub…", "");
+    $("avatar-file").addEventListener("change",function(){chooseImage(this,"avatar","avatar","avatar-preview");});
+    $("qr-file").addEventListener("change",function(){chooseImage(this,"qr","qr","qr-preview");});
+    $("share-file").addEventListener("change",function(){chooseImage(this,"share","share","share-preview");});
+    ["tiktok","youtube","discord"].forEach(function(key){
+      $(key+"-icon-file").addEventListener("change",function(){chooseImage(this,"icon",key+"Icon",key+"-icon-preview");});
+    });
+
+    saveButton.addEventListener("click",async function(){
+      if(!$("content-form").reportValidity()) return;
+      saveButton.disabled=true;setStatus(saveStatus,"Đang lưu lên GitHub…","");
       try{
-        var result = await apiRequest(API, {
-          method:"PUT",
-          headers:Object.assign({"Content-Type":"application/json"},headers()),
-          body:JSON.stringify({
-            message:"Cập nhật nội dung website từ trang quản trị",
-            content:encodeBase64(JSON.stringify(data,null,2) + "\n"),
-            sha:currentSha,
-            branch:BRANCH
-          })
-        });
-        currentSha = result.content.sha;
-        state = data;
-        dirty = false;
-        $("avatar-file").value = "";
-        $("qr-file").value = "";
-        setStatus(saveStatus, "Đã lưu thành công. Website sẽ cập nhật trong khoảng 1–3 phút.", "ok");
+        var result=await request("/publish",{method:"POST",body:JSON.stringify({content:collect(),images:pendingImages})});
+        state=withDefaults(result.content);pendingImages={};dirty=false;fillForm();
+        document.querySelectorAll('input[type="file"]').forEach(function(input){input.value="";});
+        setStatus(saveStatus,"Đã lưu thành công. Website sẽ cập nhật trong khoảng 1–3 phút.","ok");
       }catch(error){
-        var message = error.status === 409 ? "Dữ liệu trên GitHub vừa thay đổi. Hãy bấm Tải lại rồi thử lại." :
-          error.status === 403 ? "Token chưa có quyền Contents: Read and write." : error.message;
-        setStatus(saveStatus, message, "err");
-      }finally{
-        saveButton.disabled = false;
-      }
+        if(error.status===401){logout("Phiên đăng nhập đã hết hạn.");}
+        else setStatus(saveStatus,error.message,"err");
+      }finally{saveButton.disabled=false;}
     });
 
-    $("reload").addEventListener("click", async function(){
-      if(dirty && !confirm("Bỏ các thay đổi chưa lưu và tải lại dữ liệu?")) return;
-      try{ await loadContent(); }catch(error){ setStatus(saveStatus,error.message,"err"); }
+    $("reload").addEventListener("click",async function(){
+      if(dirty&&!confirm("Bỏ các thay đổi chưa lưu và tải lại dữ liệu?")) return;
+      try{await loadContent();}catch(error){setStatus(saveStatus,error.message,"err");}
     });
-    $("logout").addEventListener("click", function(){
-      if(dirty && !confirm("Đăng xuất và bỏ các thay đổi chưa lưu?")) return;
-      token = ""; currentSha = ""; state = null; dirty = false;
-      editor.hidden = true; login.hidden = false;
-      setStatus(loginStatus, "Đã đăng xuất.", "ok");
+    $("logout").addEventListener("click",function(){if(!dirty||confirm("Đăng xuất và bỏ các thay đổi chưa lưu?")) logout();});
+    $("change-api").addEventListener("click",function(){
+      if(dirty&&!confirm("Đổi Worker và bỏ các thay đổi chưa lưu?")) return;
+      localStorage.removeItem("adminWorkerUrl");$("api-url").value="";apiUrl="";logout("Hãy nhập URL Worker mới.");
     });
-    window.addEventListener("beforeunload", function(event){
-      if(dirty){ event.preventDefault(); event.returnValue = ""; }
-    });
+    window.addEventListener("beforeunload",function(event){if(dirty){event.preventDefault();event.returnValue="";}});
   })();
   </script>
 </body>

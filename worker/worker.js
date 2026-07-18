@@ -399,18 +399,60 @@ function cleanFont(value) {
 }
 function cleanMusic(value) {
   const music = value && typeof value === "object" ? value : {};
+  const source = ["upload", "spotify", "youtube"].includes(music.source) ? music.source : "upload";
   const file = music.file ? cleanAudioAsset(music.file) : "";
+  const rawUrl = typeof music.url === "string" ? music.url.trim() : "";
+  let url = "";
+  if (rawUrl) {
+    if (source === "spotify" || source === "youtube") url = cleanMusicUrl(rawUrl, source);
+    else {
+      try { url = cleanMusicUrl(rawUrl, "spotify"); }
+      catch { try { url = cleanMusicUrl(rawUrl, "youtube"); } catch { url = ""; } }
+    }
+  }
   const enabled = !!music.enabled;
-  if (enabled && !file) throw new HttpError(400, "Hãy tải tệp nhạc trước khi bật trình phát.");
+  if (enabled && source === "upload" && !file) throw new HttpError(400, "Hãy tải tệp nhạc trước khi bật trình phát.");
+  if (enabled && source !== "upload" && !url) throw new HttpError(400, "Hãy nhập liên kết " + (source === "spotify" ? "Spotify" : "YouTube") + " hợp lệ.");
   const volume = Number(music.volume);
   return {
     enabled,
+    source,
     title: typeof music.title === "string" && music.title.trim() ? music.title.trim().slice(0, 100) : "Nhạc nền",
+    artist: typeof music.artist === "string" ? music.artist.trim().slice(0, 100) : "",
     file,
+    url,
+    layout: music.layout === "full" ? "full" : "compact",
     volume: Number.isFinite(volume) ? Math.min(1, Math.max(0, Math.round(volume * 100) / 100)) : 0.35,
     loop: music.loop !== false,
-    autoplay: !!music.autoplay
+    autoplay: source === "upload" && !!music.autoplay
   };
+}
+function cleanMusicUrl(value, source) {
+  let url;
+  try { url = new URL(value); } catch { throw new HttpError(400, "Liên kết nhạc không hợp lệ."); }
+  if (url.protocol !== "https:") throw new HttpError(400, "Liên kết nhạc phải dùng HTTPS.");
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (source === "spotify") {
+    if (host !== "open.spotify.com") throw new HttpError(400, "Liên kết Spotify phải thuộc open.spotify.com.");
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts[0] && parts[0].startsWith("intl-")) parts.shift();
+    if (parts[0] === "embed") parts.shift();
+    if (!["track", "album", "playlist", "artist", "show", "episode"].includes(parts[0]) || !/^[A-Za-z0-9]{10,64}$/.test(parts[1] || "")) throw new HttpError(400, "Liên kết Spotify không được hỗ trợ.");
+  } else {
+    const allowed = ["youtu.be", "youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"];
+    if (!allowed.includes(host)) throw new HttpError(400, "Liên kết YouTube không hợp lệ.");
+    let video = "", list = url.searchParams.get("list") || "";
+    if (host === "youtu.be") video = url.pathname.split("/").filter(Boolean)[0] || "";
+    else {
+      video = url.searchParams.get("v") || "";
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (!video && ["shorts", "live", "embed"].includes(parts[0])) video = parts[1] || "";
+    }
+    const validVideo = /^[A-Za-z0-9_-]{6,20}$/.test(video);
+    const validList = /^[A-Za-z0-9_-]{6,80}$/.test(list);
+    if (!validVideo && !validList) throw new HttpError(400, "Liên kết YouTube không chứa video hoặc playlist hợp lệ.");
+  }
+  return url.href;
 }
 function cleanAudioAsset(value) {
   if (typeof value !== "string" || !/^[a-zA-Z0-9._/-]+\.(?:mp3|ogg|wav|m4a|mp4)(?:\?v=[a-zA-Z0-9._-]+)?$/i.test(value)) throw new HttpError(400, "Đường dẫn tệp nhạc không hợp lệ.");

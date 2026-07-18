@@ -366,7 +366,7 @@ function cleanEmail(value) {
   return email.slice(0, 160);
 }
 function cleanAsset(value) {
-  if (typeof value !== "string" || !/^[a-zA-Z0-9._/-]+(?:\?v=\d+)?$/.test(value)) throw new HttpError(400, "Đường dẫn ảnh không hợp lệ.");
+  if (typeof value !== "string" || !/^[a-zA-Z0-9._/-]+(?:\?v=[a-zA-Z0-9._-]+)?$/.test(value)) throw new HttpError(400, "Đường dẫn ảnh không hợp lệ.");
   return value;
 }
 function cleanColor(value, fallback) {

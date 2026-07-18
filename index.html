@@ -107,7 +107,7 @@
       return typeof value === "string" && (
         /^data:image\/(png|jpeg|webp);base64,/i.test(value) ||
         /^https?:\/\//i.test(value) ||
-        /^[a-zA-Z0-9._/-]+(?:\?v=\d+)?$/.test(value)
+        /^[a-zA-Z0-9._/-]+(?:\?v=[a-zA-Z0-9._-]+)?$/.test(value)
       );
     }
     function setText(key,value){

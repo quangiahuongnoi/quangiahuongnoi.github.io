@@ -13,19 +13,6 @@
     "youtube": "https://www.youtube.com/@quangiahuongnoi",
     "discord": "https://discord.gg/dqw9FkgNDY"
   },
-  "live": {
-    "enabled": false,
-    "statusLabel": "Đang live",
-    "title": "",
-    "detail": "",
-    "url": ""
-  },
-  "schedule": {
-    "enabled": false,
-    "timezone": "GMT+7",
-    "events": []
-  },
-  "highlights": [],
   "avatarImage": "avatar-transparent.png?v=20260718-2",
   "qrImage": "",
   "shareImage": "share-preview.jpg?v=20260718-1",
@@ -54,5 +41,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-09T07:21:27.773Z"
+  "updatedAt": "2026-08-10T07:45:28.380Z"
 }

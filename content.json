@@ -25,7 +25,7 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": false,
+    "enabled": true,
     "statusLabel": "Đang live",
     "title": "Sắp qua 7.0 ròi",
     "detail": "",
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-10T08:53:13.261Z"
+  "updatedAt": "2026-08-10T08:53:46.652Z"
 }

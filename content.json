@@ -24,6 +24,33 @@
   "fontFamily": "modern",
   "headingFontFamily": "modern",
   "fontScale": 0.97,
+  "live": {
+    "enabled": false,
+    "statusLabel": "Đang live",
+    "title": "",
+    "detail": "",
+    "url": ""
+  },
+  "schedule": {
+    "enabled": true,
+    "timezone": "GMT+7",
+    "events": [
+      {
+        "day": "Thứ 4",
+        "time": "12:00",
+        "title": "Update 7.0",
+        "note": ""
+      }
+    ]
+  },
+  "highlights": [
+    {
+      "label": "New Video",
+      "title": "Tôi đi GameVerse 2026",
+      "meta": "Youtube - 7 phút",
+      "url": "https://youtu.be/grmxRJrRQyc?si=F90Q5joFCvaJk_NZ"
+    }
+  ],
   "music": {
     "enabled": true,
     "source": "upload",
@@ -41,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-10T07:48:58.243Z"
+  "updatedAt": "2026-08-10T07:56:02.626Z"
 }

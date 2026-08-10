@@ -36,9 +36,9 @@
     "timezone": "GMT+7",
     "events": [
       {
-        "day": "Thứ 4",
+        "day": "12/8",
         "time": "12:00",
-        "title": "Update 7.0",
+        "title": "Update 7.0 Genshin",
         "note": ""
       }
     ]
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-10T07:56:02.626Z"
+  "updatedAt": "2026-08-10T07:57:42.611Z"
 }

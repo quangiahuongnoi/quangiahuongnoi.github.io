@@ -25,9 +25,9 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": true,
+    "enabled": false,
     "statusLabel": "Đang live",
-    "title": "Sắp qua 7.0 ròi",
+    "title": "",
     "detail": "",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live?_r=1&enter_from_merge=pc_share&enter_method=pc_share&is_from_webapp=1&sender_device=pc"
   },
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-10T08:53:46.652Z"
+  "updatedAt": "2026-08-10T09:57:44.868Z"
 }

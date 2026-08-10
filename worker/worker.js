@@ -170,6 +170,9 @@ function normalizeContent(input) {
     fontFamily: cleanFont(input.fontFamily),
     headingFontFamily: cleanFont(input.headingFontFamily),
     fontScale: cleanScale(input.fontScale),
+    live: cleanLive(input.live),
+    schedule: cleanSchedule(input.schedule),
+    highlights: cleanHighlights(input.highlights),
     music: cleanMusic(input.music),
     colors: {
       background: cleanColor(input.colors && input.colors.background, "#070707"),
@@ -426,6 +429,46 @@ function cleanMusic(value) {
     loop: music.loop !== false,
     autoplay: source === "upload" && !!music.autoplay
   };
+}
+function cleanOptionalText(value, max) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+function cleanOptionalUrl(value, label) {
+  const url = typeof value === "string" ? value.trim() : "";
+  return url ? cleanUrl(url, label) : "";
+}
+function cleanLive(value) {
+  const live = value && typeof value === "object" ? value : {};
+  return {
+    enabled: !!live.enabled,
+    statusLabel: cleanOptionalText(live.statusLabel, 40) || "Đang live",
+    title: cleanOptionalText(live.title, 120),
+    detail: cleanOptionalText(live.detail, 220),
+    url: cleanOptionalUrl(live.url, "xem live")
+  };
+}
+function cleanSchedule(value) {
+  const schedule = value && typeof value === "object" ? value : {};
+  const events = Array.isArray(schedule.events) ? schedule.events.slice(0, 3) : [];
+  return {
+    enabled: !!schedule.enabled,
+    timezone: cleanOptionalText(schedule.timezone, 40) || "GMT+7",
+    events: events.map((event) => ({
+      day: cleanOptionalText(event && event.day, 50),
+      time: cleanOptionalText(event && event.time, 50),
+      title: cleanOptionalText(event && event.title, 120),
+      note: cleanOptionalText(event && event.note, 120)
+    })).filter((event) => event.title)
+  };
+}
+function cleanHighlights(value) {
+  const items = Array.isArray(value) ? value.slice(0, 3) : [];
+  return items.map((item) => ({
+    label: cleanOptionalText(item && item.label, 50) || "Nội dung mới",
+    title: cleanOptionalText(item && item.title, 140),
+    meta: cleanOptionalText(item && item.meta, 180),
+    url: cleanOptionalUrl(item && item.url, "nội dung nổi bật")
+  })).filter((item) => item.title);
 }
 function cleanMusicUrl(value, source) {
   let url;

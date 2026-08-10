@@ -13,6 +13,19 @@
     "youtube": "https://www.youtube.com/@quangiahuongnoi",
     "discord": "https://discord.gg/dqw9FkgNDY"
   },
+  "live": {
+    "enabled": false,
+    "statusLabel": "Đang live",
+    "title": "",
+    "detail": "",
+    "url": ""
+  },
+  "schedule": {
+    "enabled": false,
+    "timezone": "GMT+7",
+    "events": []
+  },
+  "highlights": [],
   "avatarImage": "avatar-transparent.png?v=20260718-2",
   "qrImage": "",
   "shareImage": "share-preview.jpg?v=20260718-1",

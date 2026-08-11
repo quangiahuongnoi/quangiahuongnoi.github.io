@@ -1,7 +1,4 @@
-/* Priority 5 — Quản gia hướng nội 🐧
-   Add to index.html with:
-   <script src="priority5.js" defer></script>
-*/
+/* Priority 5 — Quản gia hướng nội 🐧 */
 (function () {
   'use strict';
 
@@ -11,6 +8,14 @@
   }
 
   ready(function () {
+    /* Remove the older inline Priority 5 mascot so only one penguin remains.
+       This also prevents it from overlapping the music player on the right. */
+    ['qghn-mascot', 'qghn-toast'].forEach(function (id) {
+      var old = document.getElementById(id);
+      if (old) old.remove();
+    });
+    document.querySelectorAll('.qghn-spark').forEach(function (el) { el.remove(); });
+
     /* Scroll reveal */
     var revealTargets = document.querySelectorAll('section, .card, .live-card, .schedule-card, .highlight-card, .social, .section-head');
     revealTargets.forEach(function (el, index) {
@@ -33,7 +38,7 @@
       revealTargets.forEach(function (el) { el.classList.add('p5-visible'); });
     }
 
-    /* Mascot */
+    /* Single mascot — bottom-left */
     var mascot = document.createElement('button');
     mascot.type = 'button';
     mascot.className = 'p5-mascot';
@@ -72,7 +77,7 @@
       }
     });
 
-    /* Live visual enhancement: detect common live indicators */
+    /* Live visual enhancement */
     var liveText = Array.prototype.slice.call(document.querySelectorAll('body *')).find(function (el) {
       var text = (el.textContent || '').trim().toLowerCase();
       return text === 'đang live' || text === 'live now';

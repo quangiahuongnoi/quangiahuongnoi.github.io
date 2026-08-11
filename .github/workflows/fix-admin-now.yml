@@ -18,7 +18,6 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
           p = Path('admin.html')
           s = p.read_text(encoding='utf-8')
           marker = "\n})();\n\\\n/* ADMIN_AUTO_REFRESH_v1"
@@ -76,3 +75,5 @@ document.addEventListener('visibilitychange', () => {
           git add admin.html .github/workflows/fix-admin-now.yml
           git diff --cached --quiet || git commit -m 'Fix Admin login JavaScript'
           git push
+
+# Trigger repair for the current main branch.

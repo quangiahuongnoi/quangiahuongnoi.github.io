@@ -24,8 +24,8 @@ jobs:
           path = Path('worker/worker.js')
           text = path.read_text(encoding='utf-8')
 
-          call_marker = '      await updateStaticMetadata(env, content);\n\n      return json({ ok: true, content }, 200, allowedOrigin);'
-          call_replacement = '''      await updateStaticMetadata(env, content);\n\n      if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {\n        try {\n          await syncDiscordLive(env, content.live);\n        } catch (error) {\n          console.warn('[discord] Live sync failed:', error?.message || error);\n        }\n      }\n\n      return json({ ok: true, content }, 200, allowedOrigin);'''
+          call_marker = '  await updateStaticMetadata(env, content);\n\n  return json({ ok: true, content }, 200, allowedOrigin);'
+          call_replacement = '''  await updateStaticMetadata(env, content);\n\n  if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {\n    try {\n      await syncDiscordLive(env, content.live);\n    } catch (error) {\n      console.warn('[discord] Live sync failed:', error?.message || error);\n    }\n  }\n\n  return json({ ok: true, content }, 200, allowedOrigin);'''
 
           if 'await syncDiscordLive(env, content.live);' not in text:
               if call_marker not in text:

@@ -424,6 +424,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
     let clicks=0,last=0; document.addEventListener('click',e=>{if(Date.now()-last>1400) clicks=0; last=Date.now(); if(e.target.closest('h1')){clicks++; if(clicks>=5){clicks=0;toast.textContent='🥚 Bạn đã tìm thấy Easter Egg của Quản gia! 🐧';toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),3500)}}});
   }; if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
+  <link rel="stylesheet" href="priority5.css">
+<script src="priority5.js" defer></script>
 </script>
 </body>
 </html>

@@ -1,0 +1,48 @@
+name: Wire Priority 8 Discord Admin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-discord.js'
+      - '.github/workflows/priority8-admin.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject Discord control script into admin.html
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('admin.html')
+          text = p.read_text(encoding='utf-8')
+          tag = '<script src="admin-discord.js" defer></script>'
+          if tag not in text:
+              marker = '</body>'
+              if marker not in text:
+                  raise SystemExit('admin.html: </body> not found')
+              text = text.replace(marker, f'{tag}\n{marker}', 1)
+              p.write_text(text, encoding='utf-8')
+              print('Injected Priority 8 Discord panel.')
+          else:
+              print('Priority 8 Discord panel already injected.')
+
+      - name: Commit Admin wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html
+          if git diff --cached --quiet; then
+            echo 'No Admin change needed.'
+          else
+            git commit -m 'Wire Priority 8 Discord panel into admin'
+            git push
+          fi

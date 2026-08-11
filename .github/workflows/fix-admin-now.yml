@@ -1,4 +1,4 @@
-name: Repair Admin now
+name: Repair Admin login
 on:
   push:
     paths:
@@ -14,22 +14,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Revert broken Admin auto-refresh commit
-        shell: bash
-        run: |
-          set -e
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if git merge-base --is-ancestor d20c345ec5627f7984a661ed7d1dc11a3dfeac1e HEAD; then
-            git revert --no-edit d20c345ec5627f7984a661ed7d1dc11a3dfeac1e
-          fi
-      - name: Add correct Admin auto-refresh inside script
+      - name: Repair broken Admin JavaScript
         shell: python
         run: |
           from pathlib import Path
+          import re
           p = Path('admin.html')
           s = p.read_text(encoding='utf-8')
-          if 'ADMIN_AUTO_REFRESH_FIXED' not in s:
+          marker = "\n})();\n\\\n/* ADMIN_AUTO_REFRESH_v1"
+          if marker in s:
+              prefix = s.split(marker, 1)[0]
               block = r'''
 /* ADMIN_AUTO_REFRESH_FIXED */
 const ADMIN_AUTO_REFRESH_MS = 10000;
@@ -58,15 +52,27 @@ document.addEventListener('visibilitychange', () => {
   if(!document.hidden) autoRefreshAdmin();
 });
 '''
-              marker = '\n})();\n</script>'
-              if marker not in s:
-                  raise SystemExit('Could not find Admin script closing marker')
-              s = s.replace(marker, '\n' + block + '})();\n</script>', 1)
-              p.write_text(s, encoding='utf-8')
-      - name: Remove repair workflow and commit
+              s = prefix + '\n' + block + '\n})();\n</script>\n</body>\n</html>\n'
+          else:
+              raise SystemExit('Broken Admin auto-refresh marker not found; refusing to modify admin.html')
+          p.write_text(s, encoding='utf-8')
+      - name: Validate Admin JavaScript syntax
         shell: bash
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('admin.html').read_text(encoding='utf-8')
+          assert '\\n/* ADMIN_AUTO_REFRESH_v1' not in s, 'Old broken auto-refresh block remains'
+          assert 'ADMIN_AUTO_REFRESH_FIXED' in s, 'Fixed auto-refresh block missing'
+          assert s.count('})();') == 1, 'Unexpected IIFE count'
+          print('Admin repair validation passed')
+          PY
+      - name: Commit repaired Admin and remove workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           rm -f .github/workflows/fix-admin-now.yml
           git add admin.html .github/workflows/fix-admin-now.yml
-          git diff --cached --quiet || git commit -m 'Fix Admin login and auto-refresh'
+          git diff --cached --quiet || git commit -m 'Fix Admin login JavaScript'
           git push

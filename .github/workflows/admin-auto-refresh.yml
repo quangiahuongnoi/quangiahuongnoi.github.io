@@ -1,0 +1,54 @@
+name: Inject Admin Auto Refresh
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inject:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip admin refresh]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject auto-refresh into admin.html
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('admin.html')
+          text = path.read_text(encoding='utf-8')
+          marker = "window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='' }})"
+          if marker not in text:
+              marker = "window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}})"
+
+          if 'ADMIN_AUTO_REFRESH_v1' in text:
+              print('Auto-refresh already installed.')
+              raise SystemExit(0)
+
+          injection = r'''\n/* ADMIN_AUTO_REFRESH_v1\n   Poll the Worker every 10 seconds. Never overwrite unsaved Admin edits. */\nconst ADMIN_AUTO_REFRESH_MS=10000;\nlet adminRefreshBusy=false;\nasync function autoRefreshAdmin(){\n  if(adminRefreshBusy||dirty||document.hidden||!token||!api)return;\n  adminRefreshBusy=true;\n  try{\n    const d=await req('/content');\n    const next=normalize(d.content);\n    const wasLive=!!state?.live?.enabled;\n    const isLive=!!next.live?.enabled;\n    state=next;\n    fill();\n    if(wasLive!==isLive){\n      msg($('saveStatus'),isLive?'🔴 LIVE vừa được phát hiện tự động.':'⚫ Livestream đã kết thúc.','ok');\n    }\n  }catch(e){\n    console.warn('[Admin auto-refresh]',e.message);\n  }finally{adminRefreshBusy=false}\n}\nsetInterval(autoRefreshAdmin,ADMIN_AUTO_REFRESH_MS);\ndocument.addEventListener('visibilitychange',()=>{if(!document.hidden)autoRefreshAdmin()});\n// ADMIN_AUTO_REFRESH_v1\n'''
+
+          idx = text.rfind('</script>')
+          if idx == -1:
+              raise SystemExit('No closing script tag found in admin.html')
+          text = text[:idx] + injection + text[idx:]
+          path.write_text(text, encoding='utf-8')
+          print('Injected Admin auto-refresh.')
+
+      - name: Commit change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Enable Admin live status auto-refresh [skip admin refresh]"
+          git push

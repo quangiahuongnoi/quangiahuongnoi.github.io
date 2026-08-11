@@ -5,6 +5,14 @@
   --p5-red-soft: #e1060038;
 }
 
+/* Remove the legacy Priority 5 mascot completely.
+   The Music Player stays untouched; only the old qghn mascot is hidden. */
+#qghn-mascot,
+#qghn-toast,
+.qghn-spark {
+  display: none !important;
+}
+
 /* ① Mascot system */
 .p5-mascot {
   position: fixed;

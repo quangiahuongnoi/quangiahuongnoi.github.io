@@ -130,7 +130,44 @@ async function publish(request, env, allowedOrigin) {
   await putGithubText(env, "content.json", JSON.stringify(content, null, 2) + "\n", "Cập nhật nội dung website từ trang quản trị");
   await updateStaticMetadata(env, content);
 
+  if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {
+    try {
+      await syncDiscordLive(env, content.live);
+    } catch (error) {
+      console.warn('[discord] Live sync failed:', error?.message || error);
+    }
+  }
+
   return json({ ok: true, content }, 200, allowedOrigin);
+}
+
+async function syncDiscordLive(env, live) {
+  const base = String(env.DISCORD_BOT_URL || '').replace(/\/+$/, '');
+  if (!base || !env.DISCORD_WEBHOOK_SECRET) return;
+
+  const payload = {
+    live: Boolean(live?.enabled),
+    game: String(live?.game || ''),
+    title: String(live?.title || ''),
+    detail: String(live?.detail || ''),
+    url: String(live?.url || env.SITE_URL || DEFAULTS.siteUrl),
+    platform: 'TikTok'
+  };
+
+  const response = await fetch(base + '/api/live', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + env.DISCORD_WEBHOOK_SECRET
+    },
+    body: JSON.stringify(payload),
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error('Bot API ' + response.status + (detail ? ': ' + detail.slice(0, 300) : ''));
+  }
 }
 
 function normalizeContent(input) {

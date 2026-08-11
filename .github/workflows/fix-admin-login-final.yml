@@ -1,0 +1,45 @@
+name: Fix Admin login final
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.head_commit.message != 'fix: make admin login independent of dashboard script'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add independent login handler
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('admin.html')
+          text = p.read_text(encoding='utf-8')
+          marker = 'ADMIN_LOGIN_INDEPENDENT_V1'
+
+          if marker not in text:
+              handler = r'''\n<script>\n// ADMIN_LOGIN_INDEPENDENT_V1\n(()=>{\n  const form=document.getElementById('loginForm');\n  if(!form)return;\n  const clean=v=>String(v||'').trim().replace(/\\/+$/,'');\n  const msg=(t,c='')=>{const e=document.getElementById('loginStatus');if(e){e.textContent=t;e.className='status '+c}};\n  form.addEventListener('submit',async ev=>{\n    ev.preventDefault();\n    ev.stopImmediatePropagation();\n    const api=clean(document.getElementById('api')?.value);\n    const password=document.getElementById('password')?.value||'';\n    const btn=document.getElementById('loginBtn');\n    if(!api){msg('Vui lòng nhập Worker URL.','err');return}\n    if(!password){msg('Vui lòng nhập mật khẩu.','err');return}\n    localStorage.setItem('adminWorkerUrl',api);\n    if(btn)btn.disabled=true;\n    msg('Đang đăng nhập...');\n    try{\n      const r=await fetch(api+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});\n      let d=null;\n      try{d=await r.json()}catch{}\n      if(!r.ok)throw new Error(d?.error||('Đăng nhập thất bại ('+r.status+')'));\n      if(!d?.token)throw new Error('Worker không trả về session token.');\n      sessionStorage.setItem('adminSession',d.token);\n      location.reload();\n    }catch(e){\n      msg(e?.message||'Không thể đăng nhập.','err');\n    }finally{if(btn)btn.disabled=false}\n  },true);\n})();\n</script>\n'''
+              pos = text.lower().rfind('</body>')
+              if pos < 0:
+                  raise SystemExit('Missing </body>')
+              text = text[:pos] + handler + text[pos:]
+              p.write_text(text,encoding='utf-8')
+          print('Independent Admin login handler installed.')
+
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html .github/workflows/fix-admin-login-final.yml
+          git commit -m 'fix: make admin login independent of dashboard script'
+          git rm .github/workflows/fix-admin-login-final.yml
+          git commit -m 'chore: remove temporary login repair workflow'
+          git push

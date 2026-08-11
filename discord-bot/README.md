@@ -7,12 +7,10 @@ Bot Discord riêng cho **Quản gia hướng nội**, tập trung vào live noti
 - 🔴 `/live start` — gửi thông báo bắt đầu live.
 - ⚫ `/live stop` — cập nhật thông báo thành đã kết thúc.
 - 📡 `/status` — xem trạng thái live hiện tại.
-- 📅 `/schedule` — mở lịch stream trên website.
+- 📅 `/schedule` — xem lịch stream trên website.
 - 🌐 `/website` — mở website.
 - 🔐 HTTP bridge `POST /api/live` để sau này Admin/Cloudflare Worker điều khiển bot mà không đưa Discord token lên frontend.
 - `GET /health` để kiểm tra bot/API.
-
-Bot dùng `discord.js` và slash commands. Discord/discord.js hỗ trợ slash commands như giao diện lệnh chuẩn của app; discord.js hiện yêu cầu Node.js 22.12+ cho dòng tài liệu hiện tại. citeturn0search0turn0search14
 
 ## 1. Tạo Discord App
 

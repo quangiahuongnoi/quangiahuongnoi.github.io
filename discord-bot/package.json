@@ -1,0 +1,20 @@
+{
+  "name": "quang-gia-huong-noi-discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Discord bot for Quản gia hướng nội — live notifications, status and schedule.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "register": "node src/register-commands.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  }
+}

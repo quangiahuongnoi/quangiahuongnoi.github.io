@@ -1,42 +1,49 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#070707">
 <title>Dashboard | Quản gia hướng nội</title>
 <style>
-:root{--bg:#070707;--panel:#111;--line:#292929;--red:#e10600;--hot:#ff2a1a;--text:#f5f5f5;--muted:#999;--ok:#45d483}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#e1060026,transparent 30%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1100px,calc(100% - 28px));margin:auto;padding:28px 0 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}.brand{font-weight:900;font-size:20px}.links{display:flex;gap:8px;flex-wrap:wrap}.links a{padding:9px 12px;border:1px solid var(--line);border-radius:10px;color:#ddd;text-decoration:none;font-size:13px}.links a:hover{border-color:#ff2a1a80;color:#fff}.kicker{margin:0 0 8px;color:var(--hot);font:700 11px ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}h1{margin:0;font-size:clamp(34px,6vw,58px);letter-spacing:-.05em}.sub{color:var(--muted);margin:12px 0 28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat,.panel{border:1px solid var(--line);border-radius:16px;background:#111d;padding:20px}.stat strong{display:block;font-size:30px;margin-top:8px}.stat span{color:var(--muted);font-size:13px}.panel{margin-top:16px}.panel h2{margin:0 0 16px;font-size:20px}.live{display:flex;align-items:center;gap:10px;color:#ddd}.dot{width:9px;height:9px;border-radius:50%;background:#777}.dot.on{background:var(--hot);box-shadow:0 0 14px var(--hot)}.next{display:grid;gap:8px}.event{display:grid;grid-template-columns:100px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid #ffffff12}.event:last-child{border-bottom:0}.time{color:var(--hot);font-weight:800}.muted{color:var(--muted)}.empty{color:var(--muted);padding:10px 0}.footer{margin-top:18px;color:#666;font-size:12px}@media(max-width:720px){.grid{grid-template-columns:1fr 1fr}.top{align-items:flex-start;flex-direction:column}.event{grid-template-columns:80px 1fr}}@media(max-width:420px){.grid{grid-template-columns:1fr}.wrap{width:min(100% - 20px,1100px)}}
+:root{--bg:#070707;--panel:#111;--panel2:#151515;--line:#292929;--red:#e10600;--hot:#ff2a1a;--text:#f5f5f5;--muted:#999;--ok:#45d483}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#e1060026,transparent 30%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1120px,calc(100% - 24px));margin:auto;padding:22px 0 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:26px}.brand{font-weight:900;font-size:19px}.links{display:flex;gap:8px;flex-wrap:wrap}.links a,.action{padding:10px 13px;border:1px solid var(--line);border-radius:11px;color:#ddd;text-decoration:none;font-size:13px;background:#111;cursor:pointer}.links a:hover,.action:hover{border-color:#ff2a1a80;color:#fff}.kicker{margin:0 0 8px;color:var(--hot);font:700 11px ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}h1{margin:0;font-size:clamp(34px,6vw,58px);letter-spacing:-.05em}.sub{color:var(--muted);margin:12px 0 24px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat,.panel{border:1px solid var(--line);border-radius:16px;background:#111d;padding:20px}.stat strong{display:block;font-size:30px;margin-top:8px}.stat span{color:var(--muted);font-size:13px}.panel{margin-top:16px}.panel h2{margin:0 0 16px;font-size:20px}.live{display:flex;align-items:flex-start;gap:12px;color:#ddd}.dot{width:10px;height:10px;min-width:10px;margin-top:5px;border-radius:50%;background:#777}.dot.on{background:var(--hot);box-shadow:0 0 14px var(--hot)}.live-title{font-size:20px;font-weight:800}.muted{color:var(--muted);line-height:1.6}.next{display:grid;gap:0}.event{display:grid;grid-template-columns:110px 1fr;gap:14px;padding:15px 0;border-bottom:1px solid #ffffff12}.event:last-child{border-bottom:0}.time{color:var(--hot);font-weight:800}.empty{color:var(--muted);padding:10px 0}.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.action{display:block;text-align:center}.footer{margin-top:18px;color:#666;font-size:12px}.refresh{color:var(--muted);font-size:12px;background:none;border:0;cursor:pointer}.refresh:hover{color:#fff}@media(max-width:720px){.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.top{align-items:flex-start;flex-direction:column}.event{grid-template-columns:82px 1fr}}@media(max-width:420px){.grid,.actions{grid-template-columns:1fr}.wrap{width:min(100% - 18px,1120px)}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">Quản gia hướng nội 🐧</div><div class="links"><a href="./">Website ↗</a><a href="./admin.html">Chỉnh sửa ↗</a></div></div>
-  <p class="kicker">Streamer dashboard</p><h1>Tổng quan</h1><p class="sub">Bảng điều khiển nhanh cho livestream, lịch sắp tới và nội dung nổi bật.</p>
+  <div class="top"><div class="brand">Quản gia hướng nội 🐧</div><div class="links"><a href="./">Website ↗</a><a href="./admin.html">Quản trị ↗</a></div></div>
+  <p class="kicker">Streamer dashboard</p>
+  <h1>Tổng quan</h1>
+  <p class="sub">Theo dõi nhanh trạng thái live, các buổi stream sắp tới và nội dung nổi bật. Lịch ở đây là <b>danh sách dự kiến</b>, không phải lịch cố định hàng tuần.</p>
   <div class="grid">
     <div class="stat"><span>Trạng thái live</span><strong id="liveStat">—</strong></div>
-    <div class="stat"><span>Buổi stream sắp tới</span><strong id="eventStat">—</strong></div>
-    <div class="stat"><span>Nội dung nổi bật</span><strong id="contentStat">—</strong></div>
+    <div class="stat"><span>Stream sắp tới</span><strong id="eventStat">—</strong></div>
+    <div class="stat"><span>Content nổi bật</span><strong id="contentStat">—</strong></div>
     <div class="stat"><span>Nhạc nền</span><strong id="musicStat">—</strong></div>
   </div>
-  <section class="panel"><h2>🔴 Livestream</h2><div class="live"><i class="dot" id="liveDot"></i><span id="liveText">Đang tải…</span></div><p class="muted" id="liveDetail"></p></section>
+  <section class="panel"><h2>🔴 Livestream hiện tại</h2><div class="live"><i class="dot" id="liveDot"></i><div><div class="live-title" id="liveText">Đang tải…</div><div class="muted" id="liveDetail">—</div></div></div></section>
   <section class="panel"><h2>📅 Stream sắp tới</h2><div class="next" id="events"><div class="empty">Đang tải…</div></div></section>
   <section class="panel"><h2>🎥 Nội dung nổi bật</h2><div class="next" id="highlights"><div class="empty">Đang tải…</div></div></section>
-  <div class="footer">Dữ liệu đọc trực tiếp từ content.json. Chỉnh sửa thông tin tại trang quản trị.</div>
+  <section class="panel"><h2>⚡ Thao tác nhanh</h2><div class="actions"><a class="action" href="./admin.html">🔴 Quản lý Live</a><a class="action" href="./admin.html">📅 Quản lý Stream</a><a class="action" href="./admin.html">🎥 Quản lý Content</a><a class="action" href="./">🌐 Xem website</a></div></section>
+  <div class="footer">Dữ liệu đọc trực tiếp từ content.json · <button class="refresh" id="refresh" type="button">Làm mới dữ liệu</button></div>
 </div>
 <script>
-(async function(){
+(function(){
   const $=id=>document.getElementById(id);
-  try{
-    const r=await fetch('./content.json?v='+Date.now(),{cache:'no-store'}); if(!r.ok) throw new Error();
-    const d=await r.json(); const live=d.live||{}, schedule=d.schedule||{}, events=Array.isArray(schedule.events)?schedule.events.filter(e=>e&&e.title):[], highlights=Array.isArray(d.highlights)?d.highlights.filter(e=>e&&e.title):[];
-    $('liveStat').textContent=live.enabled?'LIVE':'OFFLINE'; $('eventStat').textContent=events.length; $('contentStat').textContent=highlights.length; $('musicStat').textContent=d.music&&d.music.enabled?'ON':'OFF';
-    $('liveDot').className='dot'+(live.enabled?' on':''); $('liveText').textContent=live.enabled?(live.statusLabel||'Đang live'):'Hiện đang offline'; $('liveDetail').textContent=live.title||'Chưa có buổi livestream đang diễn ra.';
-    $('events').innerHTML=events.length?events.map(e=>'<div class="event"><div class="time">'+esc(e.day||'Sắp tới')+'<br><span class="muted">'+esc(e.time||schedule.timezone||'GMT+7')+'</span></div><div><strong>'+esc(e.title)+'</strong><br><span class="muted">'+esc(e.note||'Có thể thay đổi')+'</span></div></div>').join(''):'<div class="empty">Chưa có buổi stream nào được lên lịch.</div>';
-    $('highlights').innerHTML=highlights.length?highlights.map(e=>'<div class="event"><div class="time">'+esc(e.label||'Content')+'</div><div><strong>'+esc(e.title)+'</strong><br><span class="muted">'+esc(e.meta||'')+'</span></div></div>').join(''):'<div class="empty">Chưa có nội dung nổi bật.</div>';
-  }catch(e){ $('liveStat').textContent='ERR'; $('liveDetail').textContent='Không thể tải content.json.'; }
+  async function load(){
+    try{
+      const r=await fetch('./content.json?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error();
+      const d=await r.json(),live=d.live||{},schedule=d.schedule||{},events=Array.isArray(schedule.events)?schedule.events.filter(e=>e&&e.title):[],highlights=Array.isArray(d.highlights)?d.highlights.filter(e=>e&&e.title):[];
+      $('liveStat').textContent=live.enabled?'LIVE':'OFFLINE';$('eventStat').textContent=events.length;$('contentStat').textContent=highlights.length;$('musicStat').textContent=d.music&&d.music.enabled?'ON':'OFF';
+      $('liveDot').className='dot'+(live.enabled?' on':'');$('liveText').textContent=live.enabled?(live.statusLabel||'Đang live'):'Hiện đang offline';
+      $('liveDetail').textContent=live.enabled?([live.title,live.detail].filter(Boolean).join(' · ')||'Đang livestream'): 'Bật trạng thái live trong trang quản trị khi bắt đầu stream.';
+      $('events').innerHTML=events.length?events.map(e=>'<div class="event"><div class="time">'+esc(e.day||'Sắp tới')+'<br><span class="muted">'+esc(e.time||schedule.timezone||'GMT+7')+'</span></div><div><strong>'+esc(e.title)+'</strong><br><span class="muted">'+esc(e.note||'Lịch dự kiến · Có thể thay đổi')+'</span></div></div>').join(''):'<div class="empty">Chưa có buổi stream sắp tới. Bạn có thể thêm bất cứ lúc nào trong Admin.</div>';
+      $('highlights').innerHTML=highlights.length?highlights.map(e=>'<div class="event"><div class="time">'+esc(e.label||'Content')+'</div><div><strong>'+esc(e.title)+'</strong><br><span class="muted">'+esc(e.meta||'')+(e.url?' · <a href="'+safeUrl(e.url)+'" target="_blank" rel="noreferrer" style="color:#fff">Mở nội dung ↗</a>':'')+'</span></div></div>').join(''):'<div class="empty">Chưa có nội dung nổi bật.</div>';
+    }catch(e){$('liveStat').textContent='ERR';$('liveDetail').textContent='Không thể tải content.json. Hãy thử làm mới.';}
+  }
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function safeUrl(v){try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?esc(u.href):'#'}catch(e){return '#'}}
+  $('refresh').addEventListener('click',load);load();
 })();
 </script>
 </body>

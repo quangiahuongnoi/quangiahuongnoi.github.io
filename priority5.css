@@ -1,136 +1,28 @@
-/* Priority 5 — Quản gia hướng nội 🐧
-   Add to index.html with:
-   <link rel="stylesheet" href="priority5.css">
-*/
-
-:root {
-  --p5-red: var(--hot, #ff2a1a);
-  --p5-red-soft: #e1060038;
-}
-
-/* Scroll reveal */
-.p5-reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity .7s cubic-bezier(.2,.75,.25,1), transform .7s cubic-bezier(.2,.75,.25,1);
-}
-.p5-reveal.p5-visible { opacity: 1; transform: none; }
-
-/* Mascot — bottom left */
-.p5-mascot {
-  position: fixed;
-  z-index: 80;
-  left: 20px;
-  bottom: 20px;
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #ff2a1a70;
-  border-radius: 50%;
-  background: #0d0d0de8;
-  box-shadow: 0 0 0 5px #e1060012, 0 8px 30px #000b, 0 0 24px #e1060030;
-  font-size: 30px;
-  cursor: pointer;
-  user-select: none;
-  backdrop-filter: blur(12px);
-  transition: transform .2s ease, box-shadow .2s ease;
-  animation: p5Float 3.5s ease-in-out infinite;
-}
-.p5-mascot:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 0 0 6px #e1060018, 0 12px 34px #000c, 0 0 32px #e1060050;
-}
-.p5-mascot.p5-pop { animation: p5Pop .5s ease; }
-.p5-mascot::after {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  border: 1px solid #ff2a1a38;
-  border-radius: 50%;
-  animation: p5Pulse 2.8s ease-out infinite;
-  pointer-events: none;
-}
-
-.p5-toast {
-  position: fixed;
-  z-index: 81;
-  left: 88px;
-  bottom: 25px;
-  max-width: min(320px, calc(100vw - 120px));
-  padding: 12px 15px;
-  border: 1px solid #ff2a1a60;
-  border-radius: 12px;
-  background: #111111f2;
-  color: #eee;
-  font-size: 14px;
-  line-height: 1.45;
-  box-shadow: 0 12px 40px #000a, 0 0 20px #e1060025;
-  opacity: 0;
-  transform: translateY(8px) scale(.98);
-  pointer-events: none;
-  transition: opacity .2s ease, transform .2s ease;
-}
-.p5-toast.p5-show { opacity: 1; transform: none; }
-
-/* Live pulse — automatically applies to common live containers when JS marks them */
-.p5-live-active {
-  border-color: #ff2a1aa6 !important;
-  box-shadow: 0 0 0 1px #e1060018, 0 0 34px #e1060028, inset 0 1px #ffffff08 !important;
-  animation: p5LiveGlow 2.2s ease-in-out infinite;
-}
-.p5-live-dot { animation: p5LiveDot 1.15s ease-in-out infinite; }
-
-/* Easter egg */
-.p5-easter {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  background: #000b;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s ease;
-}
-.p5-easter.p5-show { opacity: 1; pointer-events: auto; }
-.p5-easter-box {
-  padding: 30px 34px;
-  text-align: center;
-  border: 1px solid #ff2a1a80;
-  border-radius: 20px;
-  background: #111;
-  box-shadow: 0 0 60px #e1060040;
-  animation: p5EasterIn .35s ease both;
-}
-.p5-easter-penguin { font-size: 70px; display: block; margin-bottom: 8px; }
-.p5-easter-box strong { display: block; font-size: 22px; }
-.p5-easter-box small { display: block; margin-top: 8px; color: #999; }
-
-/* Floating particles created by JS */
-.p5-particle {
-  position: fixed;
-  z-index: 210;
-  pointer-events: none;
-  font-size: 20px;
-  animation: p5Particle 900ms cubic-bezier(.2,.75,.25,1) forwards;
-}
-
-@keyframes p5Float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-@keyframes p5Pulse { 0%{transform:scale(.92);opacity:.65} 70%,100%{transform:scale(1.28);opacity:0} }
-@keyframes p5Pop { 0%{transform:scale(1)} 45%{transform:scale(1.25) rotate(-8deg)} 100%{transform:scale(1)} }
-@keyframes p5LiveGlow { 0%,100%{box-shadow:0 0 0 1px #e1060018,0 0 24px #e1060020} 50%{box-shadow:0 0 0 1px #e1060030,0 0 42px #e1060040} }
-@keyframes p5LiveDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.65} }
-@keyframes p5EasterIn { from{transform:translateY(16px) scale(.94)} to{transform:none} }
-@keyframes p5Particle { from{opacity:1;transform:translate(0,0) scale(1)} to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.45) rotate(20deg)} }
-
-@media (max-width: 700px) {
-  .p5-mascot { left: 14px; bottom: 14px; width: 52px; height: 52px; font-size: 27px; }
-  .p5-toast { left: 76px; bottom: 18px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .p5-mascot, .p5-mascot::after, .p5-live-active, .p5-live-dot,
-  .p5-reveal, .p5-particle { animation: none !important; transition: none !important; }
-  .p5-reveal { opacity: 1; transform: none; }
-}
+/* Priority 5 — Quản gia hướng nội 🐧 */
+:root{--p5-red:var(--hot,#ff2a1a);--p5-red-soft:#e1060038}
+/* Hide legacy inline Priority 5 mascot; the new mascot is managed by priority5.js. */
+#qghn-mascot,#qghn-toast,.qghn-spark{display:none!important}
+.p5-reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.75,.25,1),transform .7s cubic-bezier(.2,.75,.25,1)}
+.p5-reveal.p5-visible{opacity:1;transform:none}
+.p5-mascot{position:fixed;z-index:80;left:20px;right:auto;bottom:20px;width:58px;height:58px;display:grid;place-items:center;border:1px solid #ff2a1a70;border-radius:50%;background:#0d0d0de8;box-shadow:0 0 0 5px #e1060012,0 8px 30px #000b,0 0 24px #e1060030;font-size:30px;cursor:pointer;user-select:none;backdrop-filter:blur(12px);transition:transform .2s ease,box-shadow .2s ease;animation:p5Float 3.5s ease-in-out infinite}
+.p5-mascot:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 0 0 6px #e1060018,0 12px 34px #000c,0 0 32px #e1060050}
+.p5-mascot.p5-pop{animation:p5Pop .5s ease}
+.p5-mascot::after{content:"";position:absolute;inset:-5px;border:1px solid #ff2a1a38;border-radius:50%;animation:p5Pulse 2.8s ease-out infinite;pointer-events:none}
+.p5-toast{position:fixed;z-index:81;left:88px;right:auto;bottom:25px;max-width:min(320px,calc(100vw - 120px));padding:12px 15px;border:1px solid #ff2a1a60;border-radius:12px;background:#111111f2;color:#eee;font-size:14px;line-height:1.45;box-shadow:0 12px 40px #000a,0 0 20px #e1060025;opacity:0;transform:translateY(8px) scale(.98);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.p5-toast.p5-show{opacity:1;transform:none}
+.p5-live-active{border-color:#ff2a1aa6!important;box-shadow:0 0 0 1px #e1060018,0 0 34px #e1060028,inset 0 1px #ffffff08!important;animation:p5LiveGlow 2.2s ease-in-out infinite}
+.p5-live-dot{animation:p5LiveDot 1.15s ease-in-out infinite}
+.p5-easter{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#000b;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.p5-easter.p5-show{opacity:1;pointer-events:auto}
+.p5-easter-box{padding:30px 34px;text-align:center;border:1px solid #ff2a1a80;border-radius:20px;background:#111;box-shadow:0 0 60px #e1060040;animation:p5EasterIn .35s ease both}
+.p5-easter-penguin{font-size:70px;display:block;margin-bottom:8px}.p5-easter-box strong{display:block;font-size:22px}.p5-easter-box small{display:block;margin-top:8px;color:#999}
+.p5-particle{position:fixed;z-index:210;pointer-events:none;font-size:20px;animation:p5Particle 900ms cubic-bezier(.2,.75,.25,1) forwards}
+@keyframes p5Float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes p5Pulse{0%{transform:scale(.92);opacity:.65}70%,100%{transform:scale(1.28);opacity:0}}
+@keyframes p5Pop{0%{transform:scale(1)}45%{transform:scale(1.25) rotate(-8deg)}100%{transform:scale(1)}}
+@keyframes p5LiveGlow{0%,100%{box-shadow:0 0 0 1px #e1060018,0 0 24px #e1060020}50%{box-shadow:0 0 0 1px #e1060030,0 0 42px #e1060040}}
+@keyframes p5LiveDot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.65}}
+@keyframes p5EasterIn{from{transform:translateY(16px) scale(.94)}to{transform:none}}
+@keyframes p5Particle{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.45) rotate(20deg)}}
+@media(max-width:700px){.p5-mascot{left:14px;right:auto;bottom:14px;width:52px;height:52px;font-size:27px}.p5-toast{left:76px;right:auto;bottom:18px}}
+@media(prefers-reduced-motion:reduce){.p5-mascot,.p5-mascot::after,.p5-live-active,.p5-live-dot,.p5-reveal,.p5-particle{animation:none!important;transition:none!important}.p5-reveal{opacity:1;transform:none}}

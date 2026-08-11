@@ -35,3 +35,5 @@ jobs:
           git add admin.html
           git diff --cached --quiet || git commit -m 'Change admin font to Bahnschrift'
           git push
+
+# trigger workflow after creation

@@ -1,0 +1,55 @@
+name: Patch Discord bridge
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-discord-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch Cloudflare Worker Discord bridge
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('worker/worker.js')
+          text = path.read_text(encoding='utf-8')
+
+          call_marker = '      await updateStaticMetadata(env, content);\n\n      return json({ ok: true, content }, 200, allowedOrigin);'
+          call_replacement = '''      await updateStaticMetadata(env, content);\n\n      if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {\n        try {\n          await syncDiscordLive(env, content.live);\n        } catch (error) {\n          console.warn('[discord] Live sync failed:', error?.message || error);\n        }\n      }\n\n      return json({ ok: true, content }, 200, allowedOrigin);'''
+
+          if 'await syncDiscordLive(env, content.live);' not in text:
+              if call_marker not in text:
+                  raise SystemExit('Could not find publish return marker in worker/worker.js')
+              text = text.replace(call_marker, call_replacement, 1)
+
+          function_marker = 'function normalizeContent(input) {'
+          function_code = '''async function syncDiscordLive(env, live) {\n  const base = String(env.DISCORD_BOT_URL || '').replace(/\\/+$/, '');\n  if (!base || !env.DISCORD_WEBHOOK_SECRET) return;\n\n  const payload = {\n    live: Boolean(live?.enabled),\n    game: String(live?.game || ''),\n    title: String(live?.title || ''),\n    detail: String(live?.detail || ''),\n    url: String(live?.url || env.SITE_URL || DEFAULTS.siteUrl),\n    platform: 'TikTok'\n  };\n\n  const response = await fetch(base + '/api/live', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': 'Bearer ' + env.DISCORD_WEBHOOK_SECRET\n    },\n    body: JSON.stringify(payload),\n    cache: 'no-store'\n  });\n\n  if (!response.ok) {\n    const detail = await response.text().catch(() => '');\n    throw new Error('Bot API ' + response.status + (detail ? ': ' + detail.slice(0, 300) : ''));\n  }\n}\n\n'''
+
+          if 'async function syncDiscordLive(env, live)' not in text:
+              if function_marker not in text:
+                  raise SystemExit('Could not find normalizeContent marker in worker/worker.js')
+              text = text.replace(function_marker, function_code + function_marker, 1)
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Commit patched Worker
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add worker/worker.js
+          if git diff --cached --quiet; then
+            echo 'No Worker changes needed.'
+          else
+            git commit -m 'feat: connect Cloudflare admin publish to Discord live bot'
+            git push
+          fi

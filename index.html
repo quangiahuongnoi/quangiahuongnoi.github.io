@@ -51,6 +51,26 @@
 
     body{font-size:var(--font-body)}.brand,h1,h2,.lead,.card-text strong{font-family:var(--font-heading-family,var(--font-body-family,inherit))}nav a{font-size:var(--font-nav)}.eyebrow{font-size:var(--font-eyebrow)}.desc{font-size:var(--font-desc)}.label{font-size:var(--font-label)}.body-copy{font-size:var(--font-copy)}.chips span{font-size:var(--font-chip)}.section-head p,.donate-copy p{font-size:var(--font-section)}.card-text strong{font-size:var(--font-card)}.card-text small{font-size:var(--font-small)}footer{font-size:var(--font-footer)}
   </style>
+<style id="priority5-brand">
+/* Priority 5 — Quản gia hướng nội brand layer */
+.qghn-mascot{position:fixed;right:20px;bottom:20px;z-index:90;width:54px;height:54px;display:grid;place-items:center;border:1px solid #ff2a1a70;border-radius:50%;background:#0b0b0bf0;box-shadow:0 0 28px #e1060038;cursor:pointer;font-size:28px;animation:qghnFloat 3.6s ease-in-out infinite;transition:transform .2s,box-shadow .2s}
+.qghn-mascot:hover{transform:scale(1.08);box-shadow:0 0 38px #e1060060}
+.qghn-mascot::after{content:"";position:absolute;inset:-5px;border:1px solid #ff2a1a40;border-radius:50%;animation:qghnPulse 2.4s ease-out infinite}
+.qghn-toast{position:fixed;right:20px;bottom:86px;z-index:91;max-width:min(320px,calc(100vw - 40px));padding:13px 16px;border:1px solid #ff2a1a55;border-radius:12px;background:#101010f5;color:#eee;box-shadow:0 15px 45px #000b;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;font-size:14px;line-height:1.45}
+.qghn-toast.show{opacity:1;transform:none}
+.qghn-reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.75,.25,1)}
+.qghn-reveal.is-visible{opacity:1;transform:none}
+body.qghn-live .live-card{animation:qghnLiveGlow 2.6s ease-in-out infinite}
+body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
+.qghn-spark{position:fixed;z-index:999;pointer-events:none;font-size:18px;animation:qghnSpark .9s ease-out forwards}
+@keyframes qghnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qghnPulse{0%{transform:scale(.9);opacity:.7}70%,100%{transform:scale(1.35);opacity:0}}
+@keyframes qghnLiveGlow{0%,100%{box-shadow:0 0 0 #e1060000,inset 0 1px #ffffff08}50%{box-shadow:0 0 34px #e106002d,inset 0 1px #ffffff08}}
+@keyframes qghnLivePulse{0%,100%{box-shadow:0 0 0 #ff2a1a00}50%{box-shadow:0 0 18px #ff2a1a55}}
+@keyframes qghnSpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.3) rotate(180deg)}}
+@media(max-width:720px){.qghn-mascot{right:14px;bottom:14px;width:48px;height:48px;font-size:24px}.qghn-toast{right:14px;bottom:72px}}
+@media(prefers-reduced-motion:reduce){.qghn-mascot,.qghn-mascot::after,.qghn-reveal,body.qghn-live .live-card,body.qghn-live .live-status{animation:none;transition:none}.qghn-reveal{opacity:1;transform:none}}
+</style>
 </head>
 <body id="trang-chu">
   <a class="skip" href="#noi-dung">Bỏ qua điều hướng</a>
@@ -388,5 +408,22 @@
       .catch(function(){ /* Giữ nội dung mặc định nếu mạng chậm hoặc content.json chưa sẵn sàng. */ });
   })();
   </script>
+<script id="priority5-brand-script">
+(()=>{
+  const boot=()=>{
+    if(document.getElementById('qghn-mascot')) return;
+    const mascot=document.createElement('button'); mascot.id='qghn-mascot'; mascot.className='qghn-mascot'; mascot.type='button'; mascot.setAttribute('aria-label','Quản gia hướng nội'); mascot.textContent='🐧';
+    const toast=document.createElement('div'); toast.className='qghn-toast'; toast.id='qghn-toast'; toast.textContent='🐧 Quản gia đang ở đây. Chúc bạn có một ngày vui vẻ!';
+    document.body.append(mascot,toast);
+    let timer;
+    mascot.addEventListener('click',()=>{ toast.classList.add('show'); clearTimeout(timer); timer=setTimeout(()=>toast.classList.remove('show'),2600); for(let i=0;i<6;i++){const s=document.createElement('span');s.className='qghn-spark';s.textContent='🐧';s.style.left=(mascot.getBoundingClientRect().left+24)+'px';s.style.top=(mascot.getBoundingClientRect().top+24)+'px';s.style.setProperty('--sx',(Math.random()*100-50)+'px');s.style.setProperty('--sy',(Math.random()*-110-20)+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),950)}});
+    const sections=[...document.querySelectorAll('main section,.section,.card,.schedule-card,.highlight-card,.live-card')];
+    sections.forEach((el,i)=>{el.classList.add('qghn-reveal');el.style.transitionDelay=Math.min(i*35,280)+'ms'});
+    if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target)}}),{threshold:.08});sections.forEach(e=>io.observe(e))}else sections.forEach(e=>e.classList.add('is-visible'));
+    const liveText=document.body.innerText.toLowerCase(); if(liveText.includes('đang live')||liveText.includes('live now')) document.body.classList.add('qghn-live');
+    let clicks=0,last=0; document.addEventListener('click',e=>{if(Date.now()-last>1400) clicks=0; last=Date.now(); if(e.target.closest('h1')){clicks++; if(clicks>=5){clicks=0;toast.textContent='🥚 Bạn đã tìm thấy Easter Egg của Quản gia! 🐧';toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),3500)}}});
+  }; if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
 </body>
 </html>

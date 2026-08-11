@@ -130,20 +130,26 @@ async function publish(request, env, allowedOrigin) {
   await putGithubText(env, "content.json", JSON.stringify(content, null, 2) + "\n", "Cập nhật nội dung website từ trang quản trị");
   await updateStaticMetadata(env, content);
 
+  let discord = { ok: false, configured: false, error: "Discord Bot chưa được cấu hình trong Worker." };
   if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {
     try {
-      await syncDiscordLive(env, content.live);
+      const result = await syncDiscordLive(env, content.live);
+      discord = { ok: true, configured: true, status: result.status };
     } catch (error) {
-      console.warn('[discord] Live sync failed:', error?.message || error);
+      const message = error?.message || String(error);
+      console.warn("[discord] Live sync failed:", message);
+      discord = { ok: false, configured: true, error: message };
     }
   }
 
-  return json({ ok: true, content }, 200, allowedOrigin);
+  return json({ ok: true, content, discord }, 200, allowedOrigin);
 }
 
 async function syncDiscordLive(env, live) {
   const base = String(env.DISCORD_BOT_URL || '').replace(/\/+$/, '');
-  if (!base || !env.DISCORD_WEBHOOK_SECRET) return;
+  if (!base || !env.DISCORD_WEBHOOK_SECRET) {
+    throw new Error('Thiếu DISCORD_BOT_URL hoặc DISCORD_WEBHOOK_SECRET.');
+  }
 
   const payload = {
     live: Boolean(live?.enabled),
@@ -154,19 +160,34 @@ async function syncDiscordLive(env, live) {
     platform: 'TikTok'
   };
 
-  const response = await fetch(base + '/api/live', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + env.DISCORD_WEBHOOK_SECRET
-    },
-    body: JSON.stringify(payload),
-    cache: 'no-store'
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => '');
-    throw new Error('Bot API ' + response.status + (detail ? ': ' + detail.slice(0, 300) : ''));
+  try {
+    const response = await fetch(base + '/api/live', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + env.DISCORD_WEBHOOK_SECRET
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new Error('Bot API ' + response.status + (detail ? ': ' + detail.slice(0, 300) : ''));
+    }
+
+    return { status: response.status };
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error('Discord Bot không phản hồi trong 10 giây. Render có thể đang sleep hoặc chưa sẵn sàng.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

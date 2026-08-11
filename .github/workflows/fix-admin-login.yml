@@ -1,0 +1,66 @@
+name: Fix Admin login script
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-admin-login.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Repair admin.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          p = Path('admin.html')
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r'\\\\n/\\* ADMIN_AUTO_REFRESH_v1.*?// ADMIN_AUTO_REFRESH_v1\\\\n', '', s, flags=re.S)
+          s = re.sub(r'/\\* ADMIN_AUTO_REFRESH_v1.*?// ADMIN_AUTO_REFRESH_v1', '', s, flags=re.S)
+          block = '''
+/* ADMIN_AUTO_REFRESH_v2 */
+const ADMIN_AUTO_REFRESH_MS = 10000;
+let adminRefreshBusy = false;
+async function autoRefreshAdmin(){
+  if(adminRefreshBusy || dirty || document.hidden || !token || !api) return;
+  adminRefreshBusy = true;
+  try{
+    const d = await req('/content');
+    const next = normalize(d.content);
+    const wasLive = !!state?.live?.enabled;
+    const isLive = !!next.live?.enabled;
+    state = next;
+    fill();
+    if(wasLive !== isLive){
+      msg($('saveStatus'), isLive ? '🔴 LIVE vừa được phát hiện tự động.' : '⚫ Livestream đã kết thúc.', 'ok');
+    }
+  }catch(e){
+    console.warn('[Admin auto-refresh]', e.message);
+  }finally{
+    adminRefreshBusy = false;
+  }
+}
+setInterval(autoRefreshAdmin, ADMIN_AUTO_REFRESH_MS);
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden) autoRefreshAdmin();
+});
+'''
+          if 'ADMIN_AUTO_REFRESH_v2' not in s:
+              needle = '\n})();\n</script>'
+              if needle not in s:
+                  raise SystemExit('Admin script closing marker not found')
+              s = s.replace(needle, block + '\n})();\n</script>', 1)
+          p.write_text(s, encoding='utf-8')
+      - name: Commit repair
+        run: |
+          rm -f .github/workflows/fix-admin-login.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html .github/workflows/fix-admin-login.yml
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix Admin login script and auto-refresh scope'
+          git push

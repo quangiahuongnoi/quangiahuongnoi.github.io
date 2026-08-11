@@ -56,7 +56,7 @@
     "source": "upload",
     "title": "Nhạc nền",
     "artist": "",
-    "file": "music-admin.m4a?v=1786436707226",
+    "file": "music-admin.m4a?v=1786459423703",
     "url": "https://open.spotify.com/track/6BnPsHZv1jPbPAsQsm0s5b?si=ecc4345de8694d3e",
     "layout": "compact",
     "volume": 0.35,
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-11T11:22:25.306Z"
+  "updatedAt": "2026-08-11T14:43:49.394Z"
 }

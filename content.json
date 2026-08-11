@@ -25,10 +25,10 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": false,
+    "enabled": true,
     "statusLabel": "Đang live",
-    "title": "",
-    "detail": "",
+    "title": "Genshin Impact",
+    "detail": "Test thông báo discord",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live?_r=1&enter_from_merge=pc_share&enter_method=pc_share&is_from_webapp=1&sender_device=pc"
   },
   "schedule": {
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-11T08:25:11.118Z"
+  "updatedAt": "2026-08-11T10:52:31.325Z"
 }

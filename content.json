@@ -25,8 +25,8 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": true,
-    "statusLabel": "Đang live",
+    "enabled": false,
+    "statusLabel": "Offline",
     "title": "",
     "detail": "",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live"
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-11T15:06:45.371Z"
+  "updatedAt": "2026-08-11T15:08:37.868Z"
 }

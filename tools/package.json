@@ -1,0 +1,11 @@
+{
+  "name": "quangiahuongnoi-obs-live-bridge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "live-bridge": "node obs-live-bridge.mjs"
+  },
+  "dependencies": {
+    "obs-websocket-js": "^5.0.6"
+  }
+}

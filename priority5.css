@@ -16,11 +16,11 @@
 }
 .p5-reveal.p5-visible { opacity: 1; transform: none; }
 
-/* Mascot */
+/* Mascot — bottom left */
 .p5-mascot {
   position: fixed;
   z-index: 80;
-  right: 20px;
+  left: 20px;
   bottom: 20px;
   width: 58px;
   height: 58px;
@@ -55,7 +55,7 @@
 .p5-toast {
   position: fixed;
   z-index: 81;
-  right: 88px;
+  left: 88px;
   bottom: 25px;
   max-width: min(320px, calc(100vw - 120px));
   padding: 12px 15px;
@@ -125,8 +125,8 @@
 @keyframes p5Particle { from{opacity:1;transform:translate(0,0) scale(1)} to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.45) rotate(20deg)} }
 
 @media (max-width: 700px) {
-  .p5-mascot { right: 14px; bottom: 14px; width: 52px; height: 52px; font-size: 27px; }
-  .p5-toast { right: 76px; bottom: 18px; }
+  .p5-mascot { left: 14px; bottom: 14px; width: 52px; height: 52px; font-size: 27px; }
+  .p5-toast { left: 76px; bottom: 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

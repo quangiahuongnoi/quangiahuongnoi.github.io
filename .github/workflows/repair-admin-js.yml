@@ -1,0 +1,43 @@
+name: Repair Admin JS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.event.head_commit.message != 'fix: remove literal newline escapes from admin script'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repair admin.html
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('admin.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'ADMIN_AUTO_REFRESH_FIXED'
+          if marker not in s:
+              raise SystemExit('Expected Admin auto-refresh marker not found')
+          # The broken file contains the two-character sequence backslash+n
+          # inside the HTML script instead of real line breaks.
+          s = s.replace('\\\\n/* ADMIN_AUTO_REFRESH_FIXED */\\\\n', '\n/* ADMIN_AUTO_REFRESH_FIXED */\n')
+          s = s.replace('\\\\n', '\n')
+          p.write_text(s, encoding='utf-8')
+          print('admin.html repaired')
+          PY
+
+      - name: Commit repair and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html
+          git diff --cached --quiet && echo 'No changes needed' && exit 0
+          git commit -m 'fix: remove literal newline escapes from admin script'
+          git push

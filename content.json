@@ -25,9 +25,9 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": false,
-    "statusLabel": "Offline",
-    "title": "",
+    "enabled": true,
+    "statusLabel": "Online",
+    "title": "Honkai: Star Rail",
     "detail": "",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live"
   },
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-11T15:53:07.248Z"
+  "updatedAt": "2026-08-11T17:14:09.725Z"
 }

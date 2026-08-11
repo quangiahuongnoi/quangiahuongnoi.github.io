@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import {
   Client,
-  Collection,
   EmbedBuilder,
   Events,
   GatewayIntentBits,
@@ -29,21 +28,16 @@ const commands = [
       .addStringOption((o) => o.setName('title').setDescription('Tiêu đề live').setRequired(false))
       .addStringOption((o) => o.setName('url').setDescription('Link livestream').setRequired(false)))
     .addSubcommand((sub) => sub.setName('stop').setDescription('Đánh dấu livestream đã kết thúc')),
-  new SlashCommandBuilder()
-    .setName('status')
-    .setDescription('Xem trạng thái livestream hiện tại'),
-  new SlashCommandBuilder()
-    .setName('schedule')
-    .setDescription('Xem lịch stream trên website'),
-  new SlashCommandBuilder()
-    .setName('website')
-    .setDescription('Mở website Quản gia hướng nội'),
+  new SlashCommandBuilder().setName('status').setDescription('Xem trạng thái livestream hiện tại'),
+  new SlashCommandBuilder().setName('schedule').setDescription('Xem lịch stream trên website'),
+  new SlashCommandBuilder().setName('website').setDescription('Mở website Quản gia hướng nội'),
 ].map((command) => command.toJSON());
 
 const state = {
   live: false,
   game: '',
   title: '',
+  detail: '',
   url: process.env.WEBSITE_URL || 'https://quangiahuongnoi.github.io/',
   platform: process.env.DEFAULT_PLATFORM || 'TikTok',
   startedAt: null,
@@ -61,9 +55,10 @@ function liveEmbed() {
     .setDescription(state.title ? `**${state.title}**` : 'Vào xem livestream cùng Quản gia 🐧')
     .addFields(
       { name: '🎮 Game', value: state.game || 'Đang cập nhật', inline: true },
-      { name: '📺 Nền tảng', value: state.platform, inline: true },
-    )
-    .setURL(state.url || websiteUrl)
+      { name: '📺 Nền tảng', value: state.platform || 'TikTok', inline: true },
+    );
+  if (state.detail) embed.addFields({ name: '📝 Chi tiết', value: state.detail.slice(0, 1024), inline: false });
+  embed.setURL(state.url || websiteUrl)
     .setFooter({ text: `${streamerName} • Live Notification` })
     .setTimestamp(state.startedAt ? new Date(state.startedAt) : new Date());
   return embed;
@@ -85,16 +80,17 @@ async function getLiveChannel() {
   return channel;
 }
 
-async function startLive({ game, title = '', url = websiteUrl }) {
+async function startLive({ game, title = '', detail = '', url = websiteUrl, platform = process.env.DEFAULT_PLATFORM || 'TikTok' }) {
   const channel = await getLiveChannel();
   state.live = true;
   state.game = game;
   state.title = title;
+  state.detail = detail;
   state.url = url || websiteUrl;
+  state.platform = platform || process.env.DEFAULT_PLATFORM || 'TikTok';
   state.startedAt = new Date().toISOString();
 
-  const content = roleMention || undefined;
-  const message = await channel.send({ content, embeds: [liveEmbed()] });
+  const message = await channel.send({ content: roleMention || undefined, embeds: [liveEmbed()] });
   state.notificationMessageId = message.id;
   return message;
 }
@@ -116,63 +112,37 @@ async function stopLive() {
   state.startedAt = null;
 }
 
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`[discord] Logged in as ${readyClient.user.tag}`);
-});
+client.once(Events.ClientReady, (readyClient) => console.log(`[discord] Logged in as ${readyClient.user.tag}`));
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
-
   try {
     if (interaction.commandName === 'live') {
       const subcommand = interaction.options.getSubcommand();
       if (subcommand === 'start') {
-        if (state.live) {
-          await interaction.reply({ content: '🔴 Bot đang ở trạng thái LIVE rồi.', ephemeral: true });
-          return;
-        }
+        if (state.live) return interaction.reply({ content: '🔴 Bot đang ở trạng thái LIVE rồi.', ephemeral: true });
         const game = interaction.options.getString('game', true);
         const title = interaction.options.getString('title') || '';
         const url = interaction.options.getString('url') || websiteUrl;
         await startLive({ game, title, url });
-        await interaction.reply({ content: `🔴 Đã gửi thông báo LIVE: **${game}**`, ephemeral: true });
-        return;
+        return interaction.reply({ content: `🔴 Đã gửi thông báo LIVE: **${game}**`, ephemeral: true });
       }
       if (subcommand === 'stop') {
-        if (!state.live) {
-          await interaction.reply({ content: '⚫ Bot đang ở trạng thái OFFLINE.', ephemeral: true });
-          return;
-        }
+        if (!state.live) return interaction.reply({ content: '⚫ Bot đang ở trạng thái OFFLINE.', ephemeral: true });
         await stopLive();
-        await interaction.reply({ content: '⚫ Đã cập nhật livestream thành OFFLINE.', ephemeral: true });
-        return;
+        return interaction.reply({ content: '⚫ Đã cập nhật livestream thành OFFLINE.', ephemeral: true });
       }
     }
-
-    if (interaction.commandName === 'status') {
-      const embed = state.live ? liveEmbed() : offlineEmbed();
-      await interaction.reply({ embeds: [embed], ephemeral: true });
-      return;
-    }
-
-    if (interaction.commandName === 'schedule') {
-      await interaction.reply({ content: `📅 Lịch stream: ${websiteUrl}#lich-stream`, ephemeral: true });
-      return;
-    }
-
-    if (interaction.commandName === 'website') {
-      await interaction.reply({ content: `🌐 ${websiteUrl}`, ephemeral: true });
-    }
+    if (interaction.commandName === 'status') return interaction.reply({ embeds: [state.live ? liveEmbed() : offlineEmbed()], ephemeral: true });
+    if (interaction.commandName === 'schedule') return interaction.reply({ content: `📅 Lịch stream: ${websiteUrl}#lich-stream`, ephemeral: true });
+    if (interaction.commandName === 'website') return interaction.reply({ content: `🌐 ${websiteUrl}`, ephemeral: true });
   } catch (error) {
     console.error('[interaction]', error);
     const payload = { content: '❌ Bot gặp lỗi khi xử lý yêu cầu.', ephemeral: true };
-    if (interaction.replied || interaction.deferred) await interaction.followUp(payload);
-    else await interaction.reply(payload);
+    if (interaction.replied || interaction.deferred) await interaction.followUp(payload); else await interaction.reply(payload);
   }
 });
 
-// Secure bridge for a future Admin/Cloudflare Worker integration.
-// Never expose WEBHOOK_SECRET in the website or frontend JavaScript.
 const app = express();
 app.use(express.json({ limit: '32kb' }));
 
@@ -181,27 +151,25 @@ function authorized(req) {
   return Boolean(secret) && req.get('authorization') === `Bearer ${secret}`;
 }
 
-app.get('/health', (_req, res) => {
-  res.json({ ok: true, discordReady: client.isReady(), live: state.live });
-});
+app.get('/health', (_req, res) => res.json({ ok: true, discordReady: client.isReady(), live: state.live, game: state.game, startedAt: state.startedAt }));
 
 app.post('/api/live', async (req, res) => {
   if (!authorized(req)) return res.status(401).json({ ok: false, error: 'Unauthorized' });
-  const { live, game, title, url } = req.body || {};
+  const { live, game, title, detail, url, platform } = req.body || {};
   if (typeof live !== 'boolean') return res.status(400).json({ ok: false, error: 'live must be boolean' });
 
   try {
     if (live) {
       if (!game || typeof game !== 'string') return res.status(400).json({ ok: false, error: 'game is required when live=true' });
-      if (state.live && state.game === game && state.title === (title || '')) {
-        return res.json({ ok: true, changed: false, live: true });
+      if (state.live && state.game === game && state.title === (title || '') && state.url === (url || websiteUrl)) {
+        return res.json({ ok: true, changed: false, live: true, game: state.game });
       }
       if (state.live) await stopLive();
-      await startLive({ game, title: title || '', url: url || websiteUrl });
+      await startLive({ game, title: title || '', detail: detail || '', url: url || websiteUrl, platform: platform || process.env.DEFAULT_PLATFORM || 'TikTok' });
     } else if (state.live) {
       await stopLive();
     }
-    return res.json({ ok: true, changed: true, live: state.live });
+    return res.json({ ok: true, changed: true, live: state.live, game: state.game });
   } catch (error) {
     console.error('[webhook]', error);
     return res.status(500).json({ ok: false, error: 'Discord notification failed' });
@@ -210,5 +178,4 @@ app.post('/api/live', async (req, res) => {
 
 const port = Number(process.env.WEBHOOK_PORT || 8787);
 app.listen(port, () => console.log(`[http] Webhook listening on port ${port}`));
-
 await client.login(process.env.DISCORD_TOKEN);

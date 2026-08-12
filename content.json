@@ -25,7 +25,7 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": true,
+    "enabled": false,
     "statusLabel": "Đang live",
     "title": "Genshin Impact",
     "detail": "Update 7.0 Genshin",
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-12T02:58:20.980Z"
+  "updatedAt": "2026-08-12T05:08:09.947Z"
 }

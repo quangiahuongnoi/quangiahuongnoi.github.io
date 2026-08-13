@@ -26,9 +26,9 @@
   "fontScale": 0.97,
   "live": {
     "enabled": false,
-    "statusLabel": "Đang live",
-    "title": "Genshin Impact",
-    "detail": "Update 7.0 Genshin",
+    "statusLabel": "Offline",
+    "title": "",
+    "detail": "",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live"
   },
   "schedule": {
@@ -68,5 +68,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-12T05:08:14.141Z"
+  "updatedAt": "2026-08-13T08:29:01.956Z"
 }

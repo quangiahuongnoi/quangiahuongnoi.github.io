@@ -34,14 +34,7 @@
   "schedule": {
     "enabled": true,
     "timezone": "GMT+7",
-    "events": [
-      {
-        "day": "12/8",
-        "time": "12:00",
-        "title": "Update 7.0 Genshin",
-        "note": ""
-      }
-    ]
+    "events": []
   },
   "highlights": [
     {
@@ -68,5 +61,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-13T08:29:01.956Z"
+  "updatedAt": "2026-08-13T08:31:29.633Z"
 }

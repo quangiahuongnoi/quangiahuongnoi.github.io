@@ -406,6 +406,40 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
         }
       })
       .catch(function(){ /* Giữ nội dung mặc định nếu mạng chậm hoặc content.json chưa sẵn sàng. */ });
+
+      // Tự kiểm tra trạng thái LIVE định kỳ để trang đang mở không cần F5.
+      (function startLivePolling(){
+        var LIVE_POLL_MS = 20000;
+        var livePollBusy = false;
+
+        function pollLiveStatus(){
+          if(livePollBusy) return;
+          livePollBusy = true;
+
+          var controller = window.AbortController ? new AbortController() : null;
+          var timeout = controller ? setTimeout(function(){ controller.abort(); }, 8000) : null;
+
+          fetch("content.json?v="+Date.now(), {
+            cache: "no-store",
+            signal: controller ? controller.signal : undefined
+          })
+            .then(function(response){
+              if(!response.ok) throw new Error("Không tải được trạng thái LIVE");
+              return response.json();
+            })
+            .then(function(data){
+              // Chỉ cập nhật khu vực LIVE/lịch; không khởi tạo lại music player.
+              renderCreatorContent(data);
+            })
+            .catch(function(){ /* Bỏ qua lỗi tạm thời; lần kiểm tra tiếp theo sẽ thử lại. */ })
+            .finally(function(){
+              if(timeout) clearTimeout(timeout);
+              livePollBusy = false;
+            });
+        }
+
+        setInterval(pollLiveStatus, LIVE_POLL_MS);
+      })();
   })();
   </script>
 <script id="priority5-brand-script">

@@ -25,10 +25,11 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": false,
-    "statusLabel": "Offline",
-    "title": "",
-    "detail": "",
+    "enabled": true,
+    "statusLabel": "Đang live",
+    "game": "",
+    "title": "Quản gia đang livestream",
+    "detail": "Đang livestream trên TikTok. Vào xem và trò chuyện cùng mình nhé.",
     "url": "https://www.tiktok.com/@quangiahuongnoi/live"
   },
   "schedule": {
@@ -61,7 +62,7 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-09-29T03:06:15.303Z",
+  "updatedAt": "2026-09-29T07:08:10.962Z",
   "youtube": {
     "enabled": true,
     "channelHandle": "quangiahuongnoi",

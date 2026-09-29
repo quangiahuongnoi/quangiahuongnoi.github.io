@@ -47,12 +47,29 @@ export default {
       if (request.method === "POST" && url.pathname === "/publish") {
         return await publish(request, env, allowedOrigin);
       }
+      if (request.method === "POST" && url.pathname === "/live/monitor/check") {
+        const result = await runTikTokLiveMonitor(env);
+        return json(result, result.ok ? 200 : 502, allowedOrigin);
+      }
 
       return json({ ok: false, error: "Không tìm thấy API." }, 404, allowedOrigin);
     } catch (error) {
       const status = error instanceof HttpError ? error.status : 500;
       const message = error instanceof HttpError ? error.message : "Không thể hoàn tất yêu cầu. Hãy thử lại sau.";
       return json({ ok: false, error: message }, status, allowedOrigin);
+    }
+  },
+
+  async scheduled(controller, env, ctx) {
+    try {
+      if (String(env.LIVE_MONITOR_ENABLED || "").toLowerCase() !== "true") {
+        console.log("[live-monitor] disabled");
+        return;
+      }
+      const result = await runTikTokLiveMonitor(env);
+      console.log("[live-monitor]", JSON.stringify(result));
+    } catch (error) {
+      console.error("[live-monitor] scheduled check failed:", error?.message || error);
     }
   }
 };
@@ -146,6 +163,135 @@ async function publish(request, env, allowedOrigin) {
   }
 
   return json({ ok: true, content, discord }, 200, allowedOrigin);
+}
+
+async function runTikTokLiveMonitor(env) {
+  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
+  if (!username) throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
+  if (!env.TIKTOOL_API_KEY) {
+    throw new HttpError(500, "Worker chưa có TIKTOOL_API_KEY.");
+  }
+
+  const response = await fetch("https://api.tik.tools/webcast/bulk_live_check", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": env.TIKTOOL_API_KEY
+    },
+    body: JSON.stringify({ unique_ids: [username] }),
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error("TikTool API " + response.status + (detail ? ": " + detail.slice(0, 300) : ""));
+  }
+
+  const payload = await response.json();
+  const result = Array.isArray(payload?.data)
+    ? payload.data[0]
+    : (payload?.data && payload.data[username])
+      ? payload.data[username]
+      : payload?.data;
+
+  const aliveStatus = String(result?.alive_status || "").toLowerCase();
+  let state = "unknown";
+
+  if (aliveStatus === "live" || result?.is_live === true || result?.alive === true) {
+    state = "live";
+  } else if (
+    aliveStatus === "offline" ||
+    (typeof result?.is_live === "boolean" && result.is_live === false &&
+      result?.check_failed !== true && aliveStatus !== "unknown")
+  ) {
+    state = "offline";
+  }
+
+  if (state === "unknown") {
+    return {
+      ok: true,
+      changed: false,
+      state: "unknown",
+      username,
+      reason: "TikTok/TikTool chưa xác nhận được trạng thái; giữ nguyên trạng thái hiện tại."
+    };
+  }
+
+  const existing = await getGithubFile(env, "content.json");
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
+
+  let content;
+  try {
+    content = JSON.parse(decodeBase64(existing.content));
+  } catch {
+    throw new HttpError(500, "content.json hiện tại không hợp lệ.");
+  }
+
+  const currentLive = content.live && typeof content.live === "object" ? content.live : {};
+  const currentEnabled = Boolean(currentLive.enabled);
+  const nextEnabled = state === "live";
+
+  if (currentEnabled === nextEnabled) {
+    return {
+      ok: true,
+      changed: false,
+      state,
+      username,
+      live: currentLive
+    };
+  }
+
+  if (nextEnabled) {
+    const tiktokUrl = "https://www.tiktok.com/@" + encodeURIComponent(username) + "/live";
+    content.live = {
+      enabled: true,
+      statusLabel: "Đang live",
+      game: String(env.TIKTOK_LIVE_GAME || currentLive.game || "").trim().slice(0, 80),
+      title: String(env.TIKTOK_LIVE_TITLE || currentLive.title || "Quản gia đang livestream").trim().slice(0, 120),
+      detail: String(env.TIKTOK_LIVE_DETAIL || currentLive.detail || "Đang livestream trên TikTok. Vào xem và trò chuyện cùng mình nhé.").trim().slice(0, 220),
+      url: tiktokUrl
+    };
+  } else {
+    content.live = {
+      enabled: false,
+      statusLabel: "Offline",
+      game: "",
+      title: "",
+      detail: "",
+      url: ""
+    };
+  }
+
+  content.updatedAt = new Date().toISOString();
+
+  await putGithubText(
+    env,
+    "content.json",
+    JSON.stringify(content, null, 2) + "\n",
+    nextEnabled ? "TikTok Live Monitor: phát hiện LIVE" : "TikTok Live Monitor: phát hiện OFFLINE",
+    existing.sha
+  );
+
+  let discord = { ok: false, configured: false };
+  if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {
+    try {
+      const result = await syncDiscordLive(env, content.live);
+      discord = { ok: true, configured: true, status: result.status };
+    } catch (error) {
+      const message = error?.message || String(error);
+      console.warn("[discord] Live monitor sync failed:", message);
+      discord = { ok: false, configured: true, error: message };
+    }
+  }
+
+  return {
+    ok: true,
+    changed: true,
+    state,
+    username,
+    live: content.live,
+    discord
+  };
 }
 
 async function syncLiveFromSource(request, env, allowedOrigin) {

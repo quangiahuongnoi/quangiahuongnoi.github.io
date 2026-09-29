@@ -13,4 +13,4 @@ TIKTOK_USERNAME = "quangiahuongnoi"
 LIVE_MONITOR_ENABLED = "true"
 
 [[triggers]]
-crons = ["*/5 * * * *"]
+crons = ["*/2 * * * *"]

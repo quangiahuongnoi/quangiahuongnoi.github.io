@@ -30,6 +30,9 @@ export default {
       if (request.method === "POST" && url.pathname === "/login") {
         return await login(request, env, allowedOrigin);
       }
+      if (request.method === "POST" && url.pathname === "/live/sync") {
+        return await syncLiveFromSource(request, env, allowedOrigin);
+      }
 
       const session = await requireSession(request, env);
       if (!session) {
@@ -143,6 +146,62 @@ async function publish(request, env, allowedOrigin) {
   }
 
   return json({ ok: true, content, discord }, 200, allowedOrigin);
+}
+
+async function syncLiveFromSource(request, env, allowedOrigin) {
+  if (!env.LIVE_SYNC_TOKEN || env.LIVE_SYNC_TOKEN.length < 16) {
+    throw new HttpError(500, "Worker chưa có LIVE_SYNC_TOKEN.");
+  }
+
+  const authorization = request.headers.get("Authorization") || "";
+  if (!authorization.startsWith("Bearer ")) {
+    return json({ ok: false, error: "Thiếu LIVE_SYNC_TOKEN." }, 401, allowedOrigin);
+  }
+
+  const token = authorization.slice(7).trim();
+  if (!(await secureEqual(token, env.LIVE_SYNC_TOKEN))) {
+    return json({ ok: false, error: "LIVE_SYNC_TOKEN không hợp lệ." }, 401, allowedOrigin);
+  }
+
+  const body = await readJson(request, 64_000);
+  const existing = await getGithubFile(env, "content.json");
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
+
+  let content;
+  try {
+    content = JSON.parse(decodeBase64(existing.content));
+  } catch {
+    throw new HttpError(500, "content.json hiện tại không hợp lệ.");
+  }
+
+  content.live = cleanLive(body && typeof body === "object" ? body : {});
+  content.updatedAt = new Date().toISOString();
+
+  await putGithubText(
+    env,
+    "content.json",
+    JSON.stringify(content, null, 2) + "\n",
+    "Đồng bộ trạng thái LIVE từ nguồn phát"
+  );
+
+  let discord = { ok: false, configured: false, error: "Discord Bot chưa được cấu hình trong Worker." };
+  if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {
+    try {
+      const result = await syncDiscordLive(env, content.live);
+      discord = { ok: true, configured: true, status: result.status };
+    } catch (error) {
+      const message = error?.message || String(error);
+      console.warn("[discord] Live sync failed:", message);
+      discord = { ok: false, configured: true, error: message };
+    }
+  }
+
+  return json({
+    ok: true,
+    source: typeof body?.source === "string" ? body.source.slice(0, 40) : "live-sync",
+    live: content.live,
+    discord
+  }, 200, allowedOrigin);
 }
 
 async function syncDiscordLive(env, live) {
@@ -500,6 +559,7 @@ function cleanLive(value) {
   return {
     enabled: !!live.enabled,
     statusLabel: cleanOptionalText(live.statusLabel, 40) || "Đang live",
+    game: cleanOptionalText(live.game, 80),
     title: cleanOptionalText(live.title, 120),
     detail: cleanOptionalText(live.detail, 220),
     url: cleanOptionalUrl(live.url, "xem live")

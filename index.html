@@ -63,6 +63,7 @@
 body.qghn-live .live-card{animation:qghnLiveGlow 2.6s ease-in-out infinite}
 body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
 .qghn-spark{position:fixed;z-index:999;pointer-events:none;font-size:18px;animation:qghnSpark .9s ease-out forwards}
+.qghn-live-banner{position:fixed;z-index:55;top:88px;left:50%;width:min(760px,calc(100vw - 32px));display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;padding:12px 14px;border:1px solid #ff2a1a70;border-radius:14px;background:#0b0b0bf2;box-shadow:0 12px 42px #000b,0 0 26px #e1060030;backdrop-filter:blur(16px);opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}.qghn-live-banner.is-visible{opacity:1;transform:translate(-50%,0);pointer-events:auto}.qghn-live-dot{width:10px;height:10px;border-radius:50%;background:var(--hot);box-shadow:0 0 14px var(--hot);animation:qghnLivePulse 1.7s ease-in-out infinite}.qghn-live-banner-copy{min-width:0;display:grid;gap:3px}.qghn-live-banner-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.qghn-live-banner-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12px}.qghn-live-banner-cta{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #ff2a1a70;border-radius:10px;background:linear-gradient(135deg,#71110d,var(--red));color:#fff;font-size:12px;font-weight:800;white-space:nowrap}.qghn-live-banner-cta:hover{transform:translateY(-1px);filter:brightness(1.08)}@media(max-width:720px){.qghn-live-banner{top:82px;width:calc(100vw - 20px);grid-template-columns:auto minmax(0,1fr);gap:10px;padding:10px 11px}.qghn-live-banner-cta{grid-column:1/-1;width:100%}}@media(prefers-reduced-motion:reduce){.qghn-live-dot{animation:none}.qghn-live-banner{transition:none}}
 @keyframes qghnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes qghnPulse{0%{transform:scale(.9);opacity:.7}70%,100%{transform:scale(1.35);opacity:0}}
 @keyframes qghnLiveGlow{0%,100%{box-shadow:0 0 0 #e1060000,inset 0 1px #ffffff08}50%{box-shadow:0 0 34px #e106002d,inset 0 1px #ffffff08}}
@@ -79,6 +80,14 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Mở điều hướng" aria-expanded="false" aria-controls="main-nav">☰</button>
       <nav id="main-nav" aria-label="Điều hướng chính"><a class="active" href="#trang-chu">Trang chủ</a><a href="#gioi-thieu">Giới thiệu</a><a id="schedule-nav-link" href="#lich-live" hidden>Lịch live</a><a href="#lien-ket">Liên kết</a></nav>
   </header>
+  <div class="qghn-live-banner" id="qghn-live-banner" hidden aria-live="polite">
+    <span class="qghn-live-dot" aria-hidden="true"></span>
+    <div class="qghn-live-banner-copy">
+      <strong id="qghn-live-banner-title">🔴 Quản gia đang LIVE</strong>
+      <span id="qghn-live-banner-game"></span>
+    </div>
+    <a class="qghn-live-banner-cta" id="qghn-live-banner-cta" href="#" target="_blank" rel="noreferrer">Xem livestream ↗</a>
+  </div>
   <main>
     <section class="hero" id="noi-dung">
       <div class="copy">
@@ -243,9 +252,34 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       var hasLive=!!live.enabled||!!events.length;
       liveSection.hidden=!hasLive;
       scheduleLink.hidden=!hasLive;
+
+      var liveBanner=document.getElementById("qghn-live-banner");
+      var liveBannerTitle=document.getElementById("qghn-live-banner-title");
+      var liveBannerGame=document.getElementById("qghn-live-banner-game");
+      var liveBannerCta=document.getElementById("qghn-live-banner-cta");
+      var online=!!live.enabled;
+      document.body.classList.toggle("qghn-live",online);
+      if(liveBanner){
+        if(online){
+          liveBanner.hidden=false;
+          liveBanner.classList.add("is-visible");
+          liveBannerTitle.textContent="🔴 "+(nonEmpty(data.siteName)||"Quản gia")+" đang LIVE";
+          liveBannerGame.textContent=[nonEmpty(live.game),nonEmpty(live.title)].filter(Boolean).join(" · ") || "Đang livestream trên TikTok";
+          if(safeUrl(live.url)){
+            liveBannerCta.href=live.url;
+            liveBannerCta.hidden=false;
+          }else{
+            liveBannerCta.hidden=true;
+            liveBannerCta.removeAttribute("href");
+          }
+        }else{
+          liveBanner.classList.remove("is-visible");
+          liveBanner.hidden=true;
+          liveBannerCta.removeAttribute("href");
+        }
+      }
       if(hasLive){
         var status=document.getElementById("live-status"),title=document.getElementById("live-title"),detail=document.getElementById("live-detail"),cta=document.getElementById("live-cta"),list=document.getElementById("schedule-list");
-        var online=!!live.enabled;
         status.textContent=online?(nonEmpty(live.statusLabel)||"Đang live"):"Chưa lên sóng";
         status.className="live-status"+(online?"":" offline");
         title.textContent=nonEmpty(live.title)||(online?"Đang cùng bạn chơi game!":"Hẹn bạn ở buổi live tiếp theo.");

@@ -61,5 +61,41 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-08-13T08:31:29.633Z"
+  "updatedAt": "2026-09-29T03:06:15.303Z",
+  "youtube": {
+    "enabled": true,
+    "channelHandle": "quangiahuongnoi",
+    "channelId": "UC79DLlhQPRnG62JaTDcazPQ",
+    "uploadsPlaylistId": "UU79DLlhQPRnG62JaTDcazPQ",
+    "items": [
+      {
+        "id": "5BF9RGqe_K0",
+        "label": "YouTube",
+        "title": "6.7 và Qiqi =))))))",
+        "meta": "YouTube · 7/7/2026",
+        "url": "https://www.youtube.com/watch?v=5BF9RGqe_K0",
+        "thumbnail": "https://i.ytimg.com/vi/5BF9RGqe_K0/hqdefault.jpg",
+        "publishedAt": "2026-07-07T17:18:24Z"
+      },
+      {
+        "id": "grmxRJrRQyc",
+        "label": "YouTube",
+        "title": "Tôi đi GameVerse2026=))))))",
+        "meta": "YouTube · 27/5/2026",
+        "url": "https://www.youtube.com/watch?v=grmxRJrRQyc",
+        "thumbnail": "https://i.ytimg.com/vi/grmxRJrRQyc/maxresdefault.jpg",
+        "publishedAt": "2026-05-27T05:15:16Z"
+      },
+      {
+        "id": "iGTuvpoGM1Q",
+        "label": "YouTube",
+        "title": "🔴QGHN LIVE: Lam ti HSR de",
+        "meta": "YouTube · 29/4/2026",
+        "url": "https://www.youtube.com/watch?v=iGTuvpoGM1Q",
+        "thumbnail": "https://i.ytimg.com/vi/iGTuvpoGM1Q/maxresdefault.jpg",
+        "publishedAt": "2026-04-29T04:52:48Z"
+      }
+    ],
+    "updatedAt": "2026-09-29T03:06:15.303Z"
+  }
 }

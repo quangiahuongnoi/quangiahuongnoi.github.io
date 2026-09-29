@@ -32,3 +32,43 @@ npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put SESSION_SECRET
 npx wrangler secret put GITHUB_TOKEN
 ```
+
+## TikTok Live Monitor (Cloudflare Cron)
+
+Worker có thêm bộ theo dõi LIVE định kỳ:
+
+- `TIKTOK_USERNAME` mặc định là `quangiahuongnoi`.
+- Cron hiện đặt mỗi 5 phút trong `wrangler.toml`.
+- Worker gọi TikTool `POST /webcast/bulk_live_check` để lấy trạng thái LIVE.
+- Chỉ cập nhật GitHub và gọi Discord khi trạng thái chuyển **OFFLINE ↔ LIVE**.
+- Nếu nguồn trả về `unknown`, Worker giữ nguyên trạng thái trước đó để tránh tự tắt LIVE do lỗi kiểm tra.
+- Endpoint `POST /live/monitor/check` có thể được gọi từ Admin sau khi đăng nhập để kiểm tra ngay, không cần chờ Cron.
+
+### Secret cần thêm
+
+Trong Cloudflare Worker → **Settings → Variables and Secrets**, thêm Secret:
+
+- `TIKTOOL_API_KEY`: API key của TikTool.
+
+Các biến thường đã nằm trong `wrangler.toml`:
+
+- `TIKTOK_USERNAME` = `quangiahuongnoi`
+- `LIVE_MONITOR_ENABLED` = `true`
+
+### Sau khi cập nhật Worker
+
+Nếu bạn deploy bằng Cloudflare Dashboard, hãy dán phiên bản `worker/worker.js` mới vào editor rồi Deploy. Sau đó tạo/kiểm tra **Cron Trigger** với lịch `*/5 * * * *`.
+
+Nếu deploy bằng Wrangler:
+
+```bash
+npx wrangler deploy
+npx wrangler secret put TIKTOOL_API_KEY
+```
+
+Cron của Cloudflare dùng UTC; lịch `*/5 * * * *` nghĩa là chạy mỗi 5 phút.
+
+### Ghi chú
+
+TikTool là dịch vụ bên thứ ba. TikTokLive và các dịch vụ tương tự không phải TikTok Official Live API; TikTok hiện không công khai một webhook creator LIVE start/stop phù hợp cho nhu cầu này. Monitor này vì vậy cần `TIKTOOL_API_KEY` để kiểm tra trạng thái LIVE.
+

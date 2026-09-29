@@ -194,7 +194,7 @@ async function runTikTokLiveMonitor(env) {
       ? payload.data[username]
       : payload?.data;
 
-  const aliveStatus = String(result?.alive_status || "").toLowerCase();
+  const aliveStatus = String(result?.alive_status || result?.live_status || "").toLowerCase();
   let state = "unknown";
 
   if (aliveStatus === "live" || result?.is_live === true || result?.alive === true) {
@@ -231,27 +231,17 @@ async function runTikTokLiveMonitor(env) {
   const currentEnabled = Boolean(currentLive.enabled);
   const nextEnabled = state === "live";
 
-  if (currentEnabled === nextEnabled) {
-    return {
-      ok: true,
-      changed: false,
-      state,
-      username,
-      live: currentLive
-    };
-  }
+  if (!nextEnabled) {
+    if (!currentEnabled) {
+      return {
+        ok: true,
+        changed: false,
+        state,
+        username,
+        live: currentLive
+      };
+    }
 
-  if (nextEnabled) {
-    const tiktokUrl = "https://www.tiktok.com/@" + encodeURIComponent(username) + "/live";
-    content.live = {
-      enabled: true,
-      statusLabel: "Đang live",
-      game: String(env.TIKTOK_LIVE_GAME || currentLive.game || "").trim().slice(0, 80),
-      title: String(env.TIKTOK_LIVE_TITLE || currentLive.title || "Quản gia đang livestream").trim().slice(0, 120),
-      detail: String(env.TIKTOK_LIVE_DETAIL || currentLive.detail || "Đang livestream trên TikTok. Vào xem và trò chuyện cùng mình nhé.").trim().slice(0, 220),
-      url: tiktokUrl
-    };
-  } else {
     content.live = {
       enabled: false,
       statusLabel: "Offline",
@@ -260,6 +250,73 @@ async function runTikTokLiveMonitor(env) {
       detail: "",
       url: ""
     };
+  } else {
+    const apiTitle = pickLiveText(result, [
+      "title",
+      "stream_title",
+      "streamTitle",
+      "live_title",
+      "liveTitle"
+    ]);
+
+    const apiGame = pickLiveGame(result);
+    const nextTitle = String(
+      apiTitle ||
+      env.TIKTOK_LIVE_TITLE ||
+      currentLive.title ||
+      "Quản gia đang livestream"
+    ).trim().slice(0, 120);
+
+    const nextGame = String(
+      env.TIKTOK_LIVE_GAME ||
+      apiGame ||
+      currentLive.game ||
+      ""
+    ).trim().slice(0, 80);
+
+    const nextDetail = String(
+      env.TIKTOK_LIVE_DETAIL ||
+      currentLive.detail ||
+      "Đang livestream trên TikTok. Vào xem và trò chuyện cùng mình nhé."
+    ).trim().slice(0, 220);
+
+    const nextUrl = "https://www.tiktok.com/@" + encodeURIComponent(username) + "/live";
+    const metadataChanged =
+      !currentEnabled ||
+      String(currentLive.statusLabel || "") !== "Đang live" ||
+      String(currentLive.game || "") !== nextGame ||
+      String(currentLive.title || "") !== nextTitle ||
+      String(currentLive.detail || "") !== nextDetail ||
+      String(currentLive.url || "") !== nextUrl;
+
+    if (!metadataChanged) {
+      return {
+        ok: true,
+        changed: false,
+        state,
+        username,
+        live: currentLive
+      };
+    }
+
+    content.live = {
+      enabled: true,
+      statusLabel: "Đang live",
+      game: nextGame,
+      title: nextTitle,
+      detail: nextDetail,
+      url: nextUrl
+    };
+
+    console.log("[live-monitor] metadata", JSON.stringify({
+      username,
+      title: nextTitle,
+      game: nextGame,
+      source: {
+        title: apiTitle ? "tiktok" : (env.TIKTOK_LIVE_TITLE ? "env" : "existing"),
+        game: apiGame ? "tiktok" : (env.TIKTOK_LIVE_GAME ? "env" : "existing")
+      }
+    }));
   }
 
   content.updatedAt = new Date().toISOString();
@@ -268,7 +325,7 @@ async function runTikTokLiveMonitor(env) {
     env,
     "content.json",
     JSON.stringify(content, null, 2) + "\n",
-    nextEnabled ? "TikTok Live Monitor: phát hiện LIVE" : "TikTok Live Monitor: phát hiện OFFLINE",
+    nextEnabled ? "TikTok Live Monitor: cập nhật LIVE metadata" : "TikTok Live Monitor: phát hiện OFFLINE",
     existing.sha
   );
 
@@ -292,6 +349,60 @@ async function runTikTokLiveMonitor(env) {
     live: content.live,
     discord
   };
+}
+
+function pickLiveText(result, keys) {
+  for (const key of keys) {
+    const value = result?.[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return "";
+}
+
+function pickLiveGame(result) {
+  const direct = pickLiveText(result, [
+    "game",
+    "game_name",
+    "gameName",
+    "game_title",
+    "gameTitle",
+    "category_name",
+    "categoryName"
+  ]);
+  if (direct) return direct;
+
+  const objects = [
+    result?.game,
+    result?.category,
+    result?.game_info,
+    result?.gameInfo,
+    result?.game_server_feature,
+    result?.gameServerFeature
+  ];
+
+  for (const item of objects) {
+    if (!item || typeof item !== "object") continue;
+    const value = pickLiveText(item, [
+      "name",
+      "title",
+      "game",
+      "game_name",
+      "gameName",
+      "display_name",
+      "displayName",
+      "rawTag"
+    ]);
+    if (value) return normalizeGameTag(value);
+  }
+
+  const rawTag = pickLiveText(result, ["rawTag", "raw_tag"]);
+  return rawTag ? normalizeGameTag(rawTag) : "";
+}
+
+function normalizeGameTag(value) {
+  const text = String(value).trim();
+  const packed = text.match(/^\\d+(.+)$/);
+  return (packed ? packed[1] : text).trim().slice(0, 80);
 }
 
 async function syncLiveFromSource(request, env, allowedOrigin) {

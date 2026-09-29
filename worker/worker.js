@@ -51,6 +51,10 @@ export default {
         const result = await runTikTokLiveMonitor(env);
         return json(result, result.ok ? 200 : 502, allowedOrigin);
       }
+      if (request.method === "POST" && url.pathname === "/youtube/monitor/check") {
+        const result = await runYouTubeContentMonitor(env);
+        return json(result, result.ok ? 200 : 502, allowedOrigin);
+      }
 
       return json({ ok: false, error: "Không tìm thấy API." }, 404, allowedOrigin);
     } catch (error) {
@@ -61,15 +65,22 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    try {
-      if (String(env.LIVE_MONITOR_ENABLED || "").toLowerCase() !== "true") {
-        console.log("[live-monitor] disabled");
-        return;
+    if (String(env.LIVE_MONITOR_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const result = await runTikTokLiveMonitor(env);
+        console.log("[live-monitor]", JSON.stringify(result));
+      } catch (error) {
+        console.error("[live-monitor] scheduled check failed:", error?.message || error);
       }
-      const result = await runTikTokLiveMonitor(env);
-      console.log("[live-monitor]", JSON.stringify(result));
-    } catch (error) {
-      console.error("[live-monitor] scheduled check failed:", error?.message || error);
+    }
+
+    if (String(env.YOUTUBE_AUTO_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const result = await runYouTubeContentMonitor(env);
+        console.log("[youtube-monitor]", JSON.stringify(result));
+      } catch (error) {
+        console.error("[youtube-monitor] scheduled check failed:", error?.message || error);
+      }
     }
   }
 };
@@ -163,6 +174,184 @@ async function publish(request, env, allowedOrigin) {
   }
 
   return json({ ok: true, content, discord }, 200, allowedOrigin);
+}
+
+async function runYouTubeContentMonitor(env) {
+  const enabled = String(env.YOUTUBE_AUTO_ENABLED || "").toLowerCase() === "true";
+  if (!enabled) {
+    return { ok: true, changed: false, enabled: false, reason: "YouTube Auto Content đang tắt." };
+  }
+
+  if (!env.YOUTUBE_API_KEY) {
+    throw new HttpError(500, "Worker chưa có YOUTUBE_API_KEY.");
+  }
+
+  const handle = String(env.YOUTUBE_CHANNEL_HANDLE || "quangiahuongnoi").trim().replace(/^@+/, "");
+  if (!handle) throw new HttpError(500, "Chưa cấu hình YOUTUBE_CHANNEL_HANDLE.");
+
+  const existing = await getGithubFile(env, "content.json");
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
+
+  let content;
+  try {
+    content = JSON.parse(decodeBase64(existing.content));
+  } catch {
+    throw new HttpError(500, "content.json hiện tại không hợp lệ.");
+  }
+
+  const existingYouTube = content.youtube && typeof content.youtube === "object" ? content.youtube : {};
+  let channelId = cleanOptionalText(existingYouTube.channelId, 64);
+  let uploadsPlaylistId = cleanOptionalText(existingYouTube.uploadsPlaylistId, 64);
+
+  if (!channelId || !uploadsPlaylistId || cleanOptionalText(existingYouTube.channelHandle, 120) !== handle) {
+    const channelPayload = await youtubeApiRequest(env, "channels", {
+      part: "contentDetails",
+      forHandle: handle,
+      maxResults: "1"
+    });
+
+    const channel = Array.isArray(channelPayload?.items) ? channelPayload.items[0] : null;
+    channelId = cleanOptionalText(channel?.id, 64);
+    uploadsPlaylistId = cleanOptionalText(channel?.contentDetails?.relatedPlaylists?.uploads, 64);
+
+    if (!channelId || !uploadsPlaylistId) {
+      throw new Error("Không tìm thấy YouTube channel hoặc uploads playlist cho @" + handle + ".");
+    }
+  }
+
+  const playlistPayload = await youtubeApiRequest(env, "playlistItems", {
+    part: "snippet,contentDetails",
+    playlistId: uploadsPlaylistId,
+    maxResults: "3"
+  });
+
+  const items = Array.isArray(playlistPayload?.items)
+    ? playlistPayload.items
+      .map((item) => {
+        const videoId = cleanOptionalText(item?.contentDetails?.videoId, 32);
+        const title = cleanOptionalText(item?.snippet?.title, 140);
+        const publishedAt = cleanOptionalText(item?.snippet?.publishedAt, 40);
+        const thumbnails = item?.snippet?.thumbnails || {};
+        const thumbnail = cleanOptionalUrl(
+          thumbnails?.maxres?.url ||
+          thumbnails?.standard?.url ||
+          thumbnails?.high?.url ||
+          thumbnails?.medium?.url ||
+          thumbnails?.default?.url,
+          "thumbnail YouTube"
+        );
+
+        if (!videoId || !title) return null;
+
+        return {
+          id: videoId,
+          label: "YouTube",
+          title,
+          meta: "YouTube" + (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
+          url: "https://www.youtube.com/watch?v=" + encodeURIComponent(videoId),
+          thumbnail,
+          publishedAt
+        };
+      })
+      .filter(Boolean)
+    : [];
+
+  const nextYouTube = {
+    enabled: true,
+    channelHandle: handle,
+    channelId,
+    uploadsPlaylistId,
+    items,
+    updatedAt: new Date().toISOString()
+  };
+
+  const previousComparable = JSON.stringify({
+    enabled: existingYouTube.enabled !== false,
+    channelHandle: existingYouTube.channelHandle || "",
+    channelId: existingYouTube.channelId || "",
+    uploadsPlaylistId: existingYouTube.uploadsPlaylistId || "",
+    items: Array.isArray(existingYouTube.items) ? existingYouTube.items : []
+  });
+  const nextComparable = JSON.stringify({
+    enabled: true,
+    channelHandle: nextYouTube.channelHandle,
+    channelId: nextYouTube.channelId,
+    uploadsPlaylistId: nextYouTube.uploadsPlaylistId,
+    items
+  });
+
+  if (previousComparable === nextComparable) {
+    return {
+      ok: true,
+      changed: false,
+      enabled: true,
+      channelHandle: handle,
+      items
+    };
+  }
+
+  content.youtube = nextYouTube;
+  content.updatedAt = new Date().toISOString();
+
+  await putGithubText(
+    env,
+    "content.json",
+    JSON.stringify(content, null, 2) + "\n",
+    "YouTube Auto Content: cập nhật video mới",
+    existing.sha
+  );
+
+  return {
+    ok: true,
+    changed: true,
+    enabled: true,
+    channelHandle: handle,
+    items
+  };
+}
+
+async function youtubeApiRequest(env, resource, params) {
+  const query = new URLSearchParams({
+    ...params,
+    key: String(env.YOUTUBE_API_KEY)
+  });
+  const response = await fetch("https://www.googleapis.com/youtube/v3/" + resource + "?" + query.toString(), {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    let detail = "";
+    try {
+      const body = await response.json();
+      const first = Array.isArray(body?.error?.errors) ? body.error.errors[0] : null;
+      detail = first?.reason || body?.error?.message || "";
+    } catch {
+      detail = await response.text().catch(() => "");
+    }
+    throw new Error(
+      "YouTube API " + response.status +
+      (detail ? ": " + String(detail).slice(0, 220) : "")
+    );
+  }
+
+  return response.json();
+}
+
+function formatRelativeDate(value) {
+  const time = Date.parse(value);
+  if (!Number.isFinite(time)) return "";
+  const diff = Math.max(0, Date.now() - time);
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return minutes <= 1 ? "vừa đăng" : minutes + " phút trước";
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours === 1 ? "1 giờ trước" : hours + " giờ trước";
+  const days = Math.floor(hours / 24);
+  if (days < 7) return days === 1 ? "hôm qua" : days + " ngày trước";
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return weeks === 1 ? "1 tuần trước" : weeks + " tuần trước";
+  return new Date(time).toLocaleDateString("vi-VN");
 }
 
 async function runTikTokLiveMonitor(env) {
@@ -547,6 +736,7 @@ function normalizeContent(input) {
     live: cleanLive(input.live),
     schedule: cleanSchedule(input.schedule),
     highlights: cleanHighlights(input.highlights),
+    youtube: cleanYouTube(input.youtube),
     music: cleanMusic(input.music),
     colors: {
       background: cleanColor(input.colors && input.colors.background, "#070707"),
@@ -774,6 +964,27 @@ function cleanFont(value) {
   const allowed = new Set(["modern", "arial", "tahoma", "georgia", "times", "monospace"]);
   return allowed.has(value) ? value : "modern";
 }
+function cleanYouTube(value) {
+  const youtube = value && typeof value === "object" ? value : {};
+  const items = Array.isArray(youtube.items) ? youtube.items.slice(0, 3).map((item) => ({
+    id: cleanOptionalText(item && item.id, 32),
+    label: cleanOptionalText(item && item.label, 40) || "YouTube",
+    title: cleanOptionalText(item && item.title, 140),
+    meta: cleanOptionalText(item && item.meta, 180),
+    url: cleanOptionalUrl(item && item.url, "video YouTube"),
+    thumbnail: cleanOptionalUrl(item && item.thumbnail, "thumbnail YouTube"),
+    publishedAt: cleanOptionalText(item && item.publishedAt, 40)
+  })).filter((item) => item.id && item.title && item.url) : [];
+
+  return {
+    enabled: !!youtube.enabled,
+    channelHandle: cleanOptionalText(youtube.channelHandle, 120),
+    channelId: cleanOptionalText(youtube.channelId, 64),
+    uploadsPlaylistId: cleanOptionalText(youtube.uploadsPlaylistId, 64),
+    items
+  };
+}
+
 function cleanMusic(value) {
   const music = value && typeof value === "object" ? value : {};
   const source = ["upload", "spotify", "youtube"].includes(music.source) ? music.source : "upload";

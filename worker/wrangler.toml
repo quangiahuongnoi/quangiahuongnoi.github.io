@@ -8,3 +8,9 @@ GITHUB_OWNER = "quangiahuongnoi"
 GITHUB_REPO = "quangiahuongnoi.github.io"
 GITHUB_BRANCH = "main"
 SITE_URL = "https://quangiahuongnoi.github.io"
+
+TIKTOK_USERNAME = "quangiahuongnoi"
+LIVE_MONITOR_ENABLED = "true"
+
+[[triggers]]
+crons = ["*/5 * * * *"]

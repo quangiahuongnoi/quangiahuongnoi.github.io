@@ -1,0 +1,49 @@
+name: Fix TikTok offline monitor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-tiktok-offline-monitor.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Patch worker.js
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('worker/worker.js')
+          text = path.read_text(encoding='utf-8')
+
+          old = '''  // live_status chỉ là cache hint. Nếu website đang LIVE mà endpoint trả false,\n  // giữ nguyên LIVE để tránh tắt nhầm do cache chưa theo kịp.\n  if (!isLive && currentLive.enabled) {\n    return {\n      ok: true,\n      changed: false,\n      state: "offline_hint",\n      username,\n      live: currentLive,\n      cached: result.cached ?? null,\n      roomId: result.room_id || null,\n      reason:\n        "TikTool live_status báo offline nhưng đang giữ trạng thái LIVE hiện tại vì endpoint này chỉ là cache hint."\n    };\n  }\n\n  if (!isLive) {\n    if (!currentLive.enabled) {\n      return {\n        ok: true,\n        changed: false,\n        state: "offline",\n        username,\n        live: currentLive,\n        cached: result.cached ?? null,\n        roomId: result.room_id || null\n      };\n    }\n  }\n\n'''
+
+          new = '''  // TikTool đã trả về is_live=true/false rõ ràng, nên dùng kết quả này\n  // để đồng bộ trạng thái website. Khi false, phải tắt LIVE ngay ở content.json.\n  if (!isLive) {\n    if (!currentLive.enabled) {\n      return {\n        ok: true,\n        changed: false,\n        state: "offline",\n        username,\n        live: currentLive,\n        cached: result.cached ?? null,\n        roomId: result.room_id || null\n      };\n    }\n\n    content.live = {\n      enabled: false,\n      statusLabel: "Offline",\n      game: "",\n      title: "",\n      detail: "",\n      url: ""\n    };\n  }\n\n'''
+
+          if old not in text:
+              raise SystemExit('Không tìm thấy block offline cache-hint trong worker/worker.js')
+
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          print('TikTok offline monitor logic patched successfully')
+          PY
+
+      - name: Commit worker.js and remove one-time workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add worker/worker.js .github/workflows/fix-tiktok-offline-monitor.yml
+          git commit -m "fix: update TikTok monitor when live ends"
+          git rm .github/workflows/fix-tiktok-offline-monitor.yml
+          git commit -m "chore: remove one-time TikTok monitor patch workflow"
+          git push origin HEAD:main

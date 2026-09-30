@@ -80,6 +80,13 @@
       }
     ]
   },
+  "tiktok": {
+    "enabled": false,
+    "username": "quangiahuongnoi",
+    "profileUrl": "https://www.tiktok.com/@quangiahuongnoi",
+    "items": [],
+    "updatedAt": ""
+  },
   "music": {
     "enabled": true,
     "source": "upload",

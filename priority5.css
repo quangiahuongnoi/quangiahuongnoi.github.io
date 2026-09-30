@@ -150,7 +150,129 @@
   color: #fff;
   cursor: pointer;
 }
+.tiktok-section{
+  width:min(100% - 48px,1288px);
+  margin:auto;
+  padding:128px 0;
+  border-top:1px solid var(--border);
+}
 
+.tiktok-section .section-title{
+  max-width:760px;
+  margin-bottom:60px;
+}
+
+.section-kicker{
+  display:block;
+  margin-bottom:18px;
+  color:var(--hot);
+  font:700 13px ui-monospace,monospace;
+  letter-spacing:.16em;
+}
+
+.tiktok-section .section-title h2{
+  margin:0;
+}
+
+.tiktok-section .section-title p{
+  max-width:570px;
+  margin:22px 0 0;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.7;
+}
+
+.tiktok-posts{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.tiktok-post{
+  display:grid;
+  grid-template-rows:auto 1fr;
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:linear-gradient(145deg,#161616eb,#090909f5);
+  transition:.2s ease;
+}
+
+.tiktok-post:hover{
+  transform:translateY(-5px);
+  border-color:#ff2a1aa6;
+  box-shadow:0 20px 60px #e106001f;
+}
+
+.tiktok-post-thumb{
+  display:block;
+  width:100%;
+  aspect-ratio:9/16;
+  object-fit:cover;
+  background:#111;
+}
+
+.tiktok-post-body{
+  display:grid;
+  gap:10px;
+  padding:22px;
+}
+
+.tiktok-post-label{
+  color:var(--hot);
+  font:700 11px ui-monospace,monospace;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.tiktok-post-body h3{
+  margin:0;
+  font-size:21px;
+  line-height:1.2;
+}
+
+.tiktok-post-body p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.tiktok-post-arrow{
+  margin-top:auto;
+  color:var(--hot);
+  font-weight:800;
+}
+
+.tiktok-profile-link{
+  display:inline-flex;
+  margin-top:24px;
+  color:var(--hot);
+  font-weight:800;
+}
+
+.tiktok-empty{
+  padding:40px;
+  border:1px dashed var(--border);
+  border-radius:16px;
+  color:var(--muted);
+  text-align:center;
+}
+
+@media(max-width:760px){
+  .tiktok-section{
+    width:min(100% - 40px,1288px);
+    padding:88px 0;
+  }
+
+  .tiktok-posts{
+    grid-template-columns:1fr;
+  }
+
+  .tiktok-post-thumb{
+    aspect-ratio:16/9;
+  }
+}
 /* Click particles */
 .p5-particle {
   position: fixed;

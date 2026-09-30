@@ -1,0 +1,192 @@
+name: Direct update TikTok Apify monitor
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/direct-tiktok-apify-update.yml'
+permissions:
+  contents: write
+jobs:
+  patch-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch worker.js
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('worker/worker.js')
+          s = p.read_text()
+          marker = '// [APIFY_TIKTOK_POSTS_MONITOR]'
+          if marker in s:
+              print('already patched')
+              raise SystemExit(0)
+
+          old = '''      if (request.method === "POST" && url.pathname === "/youtube/monitor/check") {
+        const result = await runYouTubeContentMonitor(env);
+        return json(result, result.ok ? 200 : 502, allowedOrigin);
+      }'''
+          new = old + '''
+      if (request.method === "POST" && url.pathname === "/tiktok/posts/monitor/check") {
+        const result = await runTikTokPostsMonitor(env);
+        return json(result, result.ok ? 200 : 502, allowedOrigin);
+      }'''
+          if old not in s: raise SystemExit('manual endpoint marker not found')
+          s = s.replace(old, new, 1)
+
+          old = '''    if (String(env.YOUTUBE_AUTO_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const result = await runYouTubeContentMonitor(env);
+        console.log("[youtube-monitor]", JSON.stringify(result));
+      } catch (error) {
+        console.error("[youtube-monitor] scheduled check failed:", error?.message || error);
+      }
+    }'''
+          new = old + '''
+
+    if (String(env.TIKTOK_POSTS_AUTO_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const result = await runTikTokPostsMonitor(env);
+        console.log("[tiktok-posts-monitor]", JSON.stringify(result));
+      } catch (error) {
+        console.error("[tiktok-posts-monitor] scheduled check failed:", error?.message || error);
+      }
+    }'''
+          if old not in s: raise SystemExit('scheduled marker not found')
+          s = s.replace(old, new, 1)
+
+          old = '''    youtube: cleanYouTube(input.youtube),
+    music: cleanMusic(input.music),'''
+          new = '''    youtube: cleanYouTube(input.youtube),
+    tiktok: cleanTikTok(input.tiktok),
+    music: cleanMusic(input.music),'''
+          if old not in s: raise SystemExit('normalize marker not found')
+          s = s.replace(old, new, 1)
+
+          fn = r'''function cleanTikTok(value) {
+  const tiktok = value && typeof value === "object" ? value : {};
+  const items = Array.isArray(tiktok.items)
+    ? tiktok.items.slice(0, 10).map((item) => ({
+        id: cleanOptionalText(item && item.id, 64),
+        label: cleanOptionalText(item && item.label, 40) || "TikTok",
+        title: cleanOptionalText(item && item.title, 140),
+        meta: cleanOptionalText(item && item.meta, 180),
+        url: cleanOptionalUrl(item && item.url, "video TikTok"),
+        thumbnail: cleanOptionalUrl(item && item.thumbnail, "thumbnail TikTok"),
+        publishedAt: cleanOptionalText(item && item.publishedAt, 40)
+      })).filter((item) => item.id && item.title && item.url)
+    : [];
+
+  return {
+    enabled: !!tiktok.enabled,
+    username: cleanOptionalText(tiktok.username, 120),
+    items
+  };
+}
+
+'''
+          needle = 'function cleanMusic(value) {'
+          if needle not in s: raise SystemExit('cleanMusic marker not found')
+          s = s.replace(needle, fn + needle, 1)
+
+          fn = r'''// [APIFY_TIKTOK_POSTS_MONITOR]
+async function runTikTokPostsMonitor(env) {
+  const enabled = String(env.TIKTOK_POSTS_AUTO_ENABLED || "").toLowerCase() === "true";
+  if (!enabled) return { ok: true, changed: false, enabled: false, reason: "TikTok Posts Auto đang tắt." };
+  if (!env.APIFY_API_TOKEN) throw new HttpError(500, "Worker chưa có APIFY_API_TOKEN.");
+
+  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
+  if (!username) throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
+
+  const rawLimit = Number(env.TIKTOK_POSTS_LIMIT || 3);
+  const limit = Number.isFinite(rawLimit) ? Math.min(10, Math.max(1, Math.floor(rawLimit))) : 3;
+
+  const existing = await getGithubFile(env, "content.json");
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
+
+  let content;
+  try { content = JSON.parse(decodeBase64(existing.content)); }
+  catch { throw new HttpError(500, "content.json hiện tại không hợp lệ."); }
+
+  const endpoint = "https://api.apify.com/v2/actors/scraping_solutions~tiktok-profile-scraper-posts/run-sync-get-dataset-items?token=" + encodeURIComponent(env.APIFY_API_TOKEN);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90_000);
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ Input_Search: [username], resultsLimit: limit }),
+      cache: "no-store",
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") throw new Error("Apify TikTok Posts timeout sau 90 giây.");
+    throw error;
+  } finally { clearTimeout(timeout); }
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error("Apify TikTok API " + response.status + (detail ? ": " + detail.slice(0, 400) : ""));
+  }
+
+  const payload = await response.json();
+  const rawItems = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+  const items = rawItems.map((item) => normalizeTikTokPost(item, username)).filter(Boolean).slice(0, limit);
+
+  const existingTikTok = content.tiktok && typeof content.tiktok === "object" ? content.tiktok : {};
+  const previousItems = Array.isArray(existingTikTok.items) ? existingTikTok.items : [];
+  const comparable = (list) => JSON.stringify(list.map((item) => ({
+    id: item?.id || "", title: item?.title || "", url: item?.url || "",
+    thumbnail: item?.thumbnail || "", publishedAt: item?.publishedAt || ""
+  })));
+
+  if (existingTikTok.username === username && existingTikTok.enabled !== false && comparable(previousItems) === comparable(items)) {
+    return { ok: true, changed: false, enabled: true, username, items };
+  }
+
+  content.tiktok = { enabled: true, username, items, updatedAt: new Date().toISOString() };
+  content.updatedAt = new Date().toISOString();
+  await putGithubText(env, "content.json", JSON.stringify(content, null, 2) + "\n", "TikTok Auto Content: cập nhật bài đăng mới", existing.sha);
+
+  return { ok: true, changed: true, enabled: true, username, items };
+}
+
+function normalizeTikTokPost(item, username) {
+  if (!item || typeof item !== "object") return null;
+  const id = cleanOptionalText(item.id || item.videoId || item.video_id || item.awemeId || item.aweme_id, 64);
+  const title = cleanOptionalText(item.title || item.description || item.text || item.desc || item.caption || "TikTok mới", 140);
+  const publishedAt = cleanOptionalText(item.createTimeISO || item.createTimeIso || item.publishedAt || item.create_time_iso || item.createTime, 40);
+  const url = cleanOptionalUrl(item.webVideoUrl || item.web_video_url || item.shareUrl || item.share_url || item.url || (id ? "https://www.tiktok.com/@" + encodeURIComponent(username) + "/video/" + encodeURIComponent(id) : ""), "video TikTok");
+  const thumbnail = cleanOptionalUrl(item.cover || item.coverUrl || item.cover_url || item.thumbnail || item.thumbnailUrl || item.videoMeta?.coverUrl || item.video?.cover || item.video?.coverUrl || "", "thumbnail TikTok");
+  if (!id || !url) return null;
+  return {
+    id,
+    label: "TikTok",
+    title: title || "TikTok mới",
+    meta: "TikTok" + (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
+    url,
+    thumbnail,
+    publishedAt
+  };
+}
+
+'''
+          needle = 'async function runTikTokLiveMonitor(env) {'
+          if needle not in s: raise SystemExit('live monitor marker not found')
+          s = s.replace(needle, fn + needle, 1)
+
+          p.write_text(s)
+          print('worker.js patched')
+          PY
+      - name: Commit worker.js
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add worker/worker.js
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "Add Apify TikTok posts monitor"
+          git push

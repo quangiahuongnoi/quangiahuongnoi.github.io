@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Patch worker.js
+      - name: Replace TikTok monitor function
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -26,23 +26,229 @@ jobs:
           path = Path('worker/worker.js')
           text = path.read_text(encoding='utf-8')
 
-          old = '''  // live_status chỉ là cache hint. Nếu website đang LIVE mà endpoint trả false,\n  // giữ nguyên LIVE để tránh tắt nhầm do cache chưa theo kịp.\n  if (!isLive && currentLive.enabled) {\n    return {\n      ok: true,\n      changed: false,\n      state: "offline_hint",\n      username,\n      live: currentLive,\n      cached: result.cached ?? null,\n      roomId: result.room_id || null,\n      reason:\n        "TikTool live_status báo offline nhưng đang giữ trạng thái LIVE hiện tại vì endpoint này chỉ là cache hint."\n    };\n  }\n\n  if (!isLive) {\n    if (!currentLive.enabled) {\n      return {\n        ok: true,\n        changed: false,\n        state: "offline",\n        username,\n        live: currentLive,\n        cached: result.cached ?? null,\n        roomId: result.room_id || null\n      };\n    }\n  }\n\n'''
+          start = text.find('async function runTikTokLiveMonitor(env) {')
+          end = text.find('function pickLiveText(result, keys) {', start)
+          if start < 0 or end < 0:
+              raise SystemExit('Không tìm thấy runTikTokLiveMonitor hoặc function pickLiveText trong worker/worker.js')
 
-          new = '''  // TikTool đã trả về is_live=true/false rõ ràng, nên dùng kết quả này\n  // để đồng bộ trạng thái website. Khi false, phải tắt LIVE ngay ở content.json.\n  if (!isLive) {\n    if (!currentLive.enabled) {\n      return {\n        ok: true,\n        changed: false,\n        state: "offline",\n        username,\n        live: currentLive,\n        cached: result.cached ?? null,\n        roomId: result.room_id || null\n      };\n    }\n\n    content.live = {\n      enabled: false,\n      statusLabel: "Offline",\n      game: "",\n      title: "",\n      detail: "",\n      url: ""\n    };\n  }\n\n'''
+          new_function = r'''async function runTikTokLiveMonitor(env) {
+  const username = String(env.TIKTOK_USERNAME || 'quangiahuongnoi')
+    .trim()
+    .replace(/^@+/, '');
 
-          if old not in text:
-              raise SystemExit('Không tìm thấy block offline cache-hint trong worker/worker.js')
+  if (!username) {
+    throw new HttpError(500, 'Chưa cấu hình TIKTOK_USERNAME.');
+  }
 
-          text = text.replace(old, new, 1)
-          path.write_text(text, encoding='utf-8')
-          print('TikTok offline monitor logic patched successfully')
+  if (!env.TIKTOOL_API_KEY) {
+    throw new HttpError(500, 'Worker chưa có TIKTOOL_API_KEY.');
+  }
+
+  // Sandbox-compatible endpoint. Không dùng bulk_live_check vì endpoint đó yêu cầu Basic+.
+  const endpoint =
+    'https://api.tik.tools/webcast/live_status?uniqueId=' +
+    encodeURIComponent(username);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'x-api-key': env.TIKTOOL_API_KEY
+    },
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(
+      'TikTool API ' +
+      response.status +
+      (detail ? ': ' + detail.slice(0, 300) : '')
+    );
+  }
+
+  const payload = await response.json();
+  const result = payload?.data && typeof payload.data === 'object'
+    ? payload.data
+    : null;
+
+  if (!result || typeof result.is_live !== 'boolean') {
+    return {
+      ok: true,
+      changed: false,
+      state: 'unknown',
+      username,
+      reason: 'TikTool live_status chưa xác nhận được trạng thái LIVE.'
+    };
+  }
+
+  const existing = await getGithubFile(env, 'content.json');
+  if (!existing) {
+    throw new HttpError(404, 'Không tìm thấy content.json.');
+  }
+
+  let content;
+  try {
+    content = JSON.parse(decodeBase64(existing.content));
+  } catch {
+    throw new HttpError(500, 'content.json hiện tại không hợp lệ.');
+  }
+
+  const currentLive =
+    content.live && typeof content.live === 'object'
+      ? content.live
+      : {};
+
+  const isLive = result.is_live === true;
+
+  // is_live=false được coi là OFFLINE và phải cập nhật content.json.
+  if (!isLive) {
+    if (!currentLive.enabled) {
+      return {
+        ok: true,
+        changed: false,
+        state: 'offline',
+        username,
+        live: currentLive,
+        cached: result.cached ?? null,
+        roomId: result.room_id || null
+      };
+    }
+
+    content.live = {
+      enabled: false,
+      statusLabel: 'Offline',
+      game: '',
+      title: '',
+      detail: '',
+      url: ''
+    };
+  } else {
+    const apiTitle = pickLiveText(result, [
+      'title',
+      'stream_title',
+      'streamTitle',
+      'live_title',
+      'liveTitle'
+    ]);
+
+    const apiGame = pickLiveGame(result);
+    const nextTitle = String(
+      apiTitle ||
+      env.TIKTOK_LIVE_TITLE ||
+      currentLive.title ||
+      'Quản gia đang livestream'
+    ).trim().slice(0, 120);
+
+    const nextGame = String(
+      env.TIKTOK_LIVE_GAME ||
+      apiGame ||
+      currentLive.game ||
+      ''
+    ).trim().slice(0, 80);
+
+    const nextDetail = String(
+      env.TIKTOK_LIVE_DETAIL ||
+      currentLive.detail ||
+      'Đang livestream trên TikTok. Vào xem và trò chuyện cùng mình nhé.'
+    ).trim().slice(0, 220);
+
+    const nextUrl =
+      'https://www.tiktok.com/@' +
+      encodeURIComponent(username) +
+      '/live';
+
+    const metadataChanged =
+      !currentLive.enabled ||
+      String(currentLive.statusLabel || '') !== 'Đang live' ||
+      String(currentLive.game || '') !== nextGame ||
+      String(currentLive.title || '') !== nextTitle ||
+      String(currentLive.detail || '') !== nextDetail ||
+      String(currentLive.url || '') !== nextUrl;
+
+    if (!metadataChanged) {
+      return {
+        ok: true,
+        changed: false,
+        state: 'live',
+        username,
+        live: currentLive,
+        cached: result.cached ?? null,
+        roomId: result.room_id || null
+      };
+    }
+
+    content.live = {
+      enabled: true,
+      statusLabel: 'Đang live',
+      game: nextGame,
+      title: nextTitle,
+      detail: nextDetail,
+      url: nextUrl
+    };
+
+    console.log('[live-monitor] LIVE detected', JSON.stringify({
+      username,
+      cached: result.cached ?? null,
+      roomId: result.room_id || null
+    }));
+  }
+
+  content.updatedAt = new Date().toISOString();
+
+  await putGithubText(
+    env,
+    'content.json',
+    JSON.stringify(content, null, 2) + '\n',
+    isLive
+      ? 'TikTok Live Monitor: phát hiện LIVE'
+      : 'TikTok Live Monitor: phát hiện OFFLINE',
+    existing.sha
+  );
+
+  let discord = { ok: false, configured: false };
+  if (env.DISCORD_BOT_URL && env.DISCORD_WEBHOOK_SECRET) {
+    try {
+      const discordResult = await syncDiscordLive(env, content.live);
+      discord = {
+        ok: true,
+        configured: true,
+        status: discordResult.status
+      };
+    } catch (error) {
+      const message = error?.message || String(error);
+      console.warn('[discord] Live monitor sync failed:', message);
+      discord = {
+        ok: false,
+        configured: true,
+        error: message
+      };
+    }
+  }
+
+  return {
+    ok: true,
+    changed: true,
+    state: isLive ? 'live' : 'offline',
+    username,
+    live: content.live,
+    discord,
+    cached: result.cached ?? null,
+    roomId: result.room_id || null
+  };
+}
+
+'''
+
+          path.write_text(text[:start] + new_function + text[end:], encoding='utf-8')
+          print('TikTok monitor replaced successfully')
           PY
 
       - name: Commit worker.js and remove one-time workflow
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add worker/worker.js .github/workflows/fix-tiktok-offline-monitor.yml
+          git add worker/worker.js
           git commit -m "fix: update TikTok monitor when live ends"
           git rm .github/workflows/fix-tiktok-offline-monitor.yml
           git commit -m "chore: remove one-time TikTok monitor patch workflow"

@@ -214,6 +214,10 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
         return "";
       }catch(e){return "";}
     }
+    function renderCreatorContent(data){
+      renderTikTokPosts(data);
+        var live=data.live&&typeof data.live==="object"?data.live:{};
+    }
     function setText(key,value){
       if(typeof value !== "string" || !value.trim()) return;
       document.querySelectorAll('[data-content="'+key+'"]').forEach(function(node){ node.textContent = value; });

@@ -316,6 +316,102 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
           time.append(day,hour);copy.append(eventTitle,note);item.append(time,copy);list.appendChild(item);
         });
       }
+            // ===== TIKTOK LATEST VIDEOS =====
+      var tiktokItems = data.tiktok && Array.isArray(data.tiktok.items)
+        ? data.tiktok.items.filter(function(item) {
+            return item &&
+              nonEmpty(item.title) &&
+              safeUrl(item.url);
+          }).slice(0, 3)
+        : [];
+
+      var tiktokPosts = document.getElementById("tiktokPosts");
+
+      if (tiktokPosts) {
+        tiktokPosts.textContent = "";
+
+        if (!tiktokItems.length) {
+          tiktokPosts.innerHTML =
+            '<p class="tiktok-empty">Chưa có video TikTok mới.</p>';
+        } else {
+          tiktokItems.forEach(function(item) {
+            var card = document.createElement("a");
+            card.className = "tiktok-card";
+            card.href = item.url;
+            card.target = "_blank";
+            card.rel = "noopener noreferrer";
+
+            if (safeImage(item.thumbnail)) {
+              var image = document.createElement("img");
+              image.className = "tiktok-card-thumb";
+              image.src = item.thumbnail;
+              image.alt = "";
+              image.loading = "lazy";
+              card.appendChild(image);
+            }
+
+            var content = document.createElement("div");
+            content.className = "tiktok-card-content";
+
+            var label = document.createElement("span");
+            label.className = "tiktok-card-label";
+            label.textContent = "TikTok";
+
+            var title = document.createElement("h3");
+            title.textContent = nonEmpty(item.title);
+
+            var meta = document.createElement("p");
+            meta.textContent =
+              nonEmpty(item.meta) ||
+              (item.publishedAt
+                ? formatTikTokDate(item.publishedAt)
+                : "Video mới nhất");
+
+            var arrow = document.createElement("span");
+            arrow.className = "tiktok-card-arrow";
+            arrow.textContent = "↗";
+
+            content.append(label, title, meta, arrow);
+            card.appendChild(content);
+
+            tiktokPosts.appendChild(card);
+          });
+        }
+      }
+
+      function formatTikTokDate(value) {
+        var time = Date.parse(value);
+
+        if (!Number.isFinite(time)) return "TikTok";
+
+        var diff = Math.max(0, Date.now() - time);
+        var minutes = Math.floor(diff / 60000);
+
+        if (minutes < 60) {
+          return minutes <= 1
+            ? "Vừa đăng"
+            : minutes + " phút trước";
+        }
+
+        var hours = Math.floor(minutes / 60);
+
+        if (hours < 24) {
+          return hours === 1
+            ? "1 giờ trước"
+            : hours + " giờ trước";
+        }
+
+        var days = Math.floor(hours / 24);
+
+        if (days < 7) {
+          return days === 1
+            ? "Hôm qua"
+            : days + " ngày trước";
+        }
+
+        return "TikTok";
+      }
+      // ===== END TIKTOK LATEST VIDEOS =====
       var youtubeItems=data.youtube&&data.youtube.enabled&&Array.isArray(data.youtube.items)
         ?data.youtube.items.filter(function(item){return item&&nonEmpty(item.title)&&safeUrl(item.url);})
         :[];

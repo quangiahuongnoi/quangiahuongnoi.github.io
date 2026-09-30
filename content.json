@@ -25,7 +25,7 @@
   "headingFontFamily": "modern",
   "fontScale": 0.97,
   "live": {
-    "enabled": false,
+    "enabled": true,
     "statusLabel": "Đang live",
     "game": "",
     "title": "Quản gia đang livestream",
@@ -97,5 +97,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-09-30T02:34:36.175Z"
+  "updatedAt": "2026-09-30T02:44:40.347Z"
 }

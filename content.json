@@ -81,7 +81,7 @@
     ]
   },
   "tiktok": {
-    "enabled": false,
+    "enabled": true,
     "username": "quangiahuongnoi",
     "profileUrl": "https://www.tiktok.com/@quangiahuongnoi",
     "items": [],

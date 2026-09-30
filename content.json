@@ -84,8 +84,36 @@
     "enabled": true,
     "username": "quangiahuongnoi",
     "profileUrl": "https://www.tiktok.com/@quangiahuongnoi",
-    "items": [],
-    "updatedAt": ""
+    "items": [
+      {
+        "id": "7688597317775052052",
+        "label": "TikTok",
+        "title": "first ace w new champion 2026🐧#qghn #valorantchampions  #fyp #tiktoklive #livehighlights",
+        "meta": "TikTok · 6 ngày trước",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7688597317775052052",
+        "thumbnail": "",
+        "publishedAt": "2026-09-23T05:24:27.000Z"
+      },
+      {
+        "id": "7682269878933310741",
+        "label": "TikTok",
+        "title": "ti nam moi ban vlr #qghn #valorantclips #xuhướng #fyp  @VALORANT VIỆT NAM",
+        "meta": "TikTok · 3 tuần trước",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7682269878933310741",
+        "thumbnail": "",
+        "publishedAt": "2026-09-06T04:10:48.000Z"
+      },
+      {
+        "id": "7678882876615609621",
+        "label": "TikTok",
+        "title": "ay da nóng hổi nóng hổi #qghn #fyp #xuhuong #freefire #xh @Garena Free Fire VN",
+        "meta": "TikTok · 4 tuần trước",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7678882876615609621",
+        "thumbnail": "",
+        "publishedAt": "2026-08-28T01:07:32.000Z"
+      }
+    ],
+    "updatedAt": "2026-09-30T04:29:05.129Z"
   },
   "music": {
     "enabled": true,
@@ -104,5 +132,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-09-30T02:48:18.181Z"
+  "updatedAt": "2026-09-30T04:29:05.129Z"
 }

@@ -336,14 +336,14 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
         } else {
           tiktokItems.forEach(function(item) {
             var card = document.createElement("a");
-            card.className = "tiktok-card";
+            card.className = "tiktok-post";
             card.href = item.url;
             card.target = "_blank";
             card.rel = "noopener noreferrer";
 
             if (safeImage(item.thumbnail)) {
               var image = document.createElement("img");
-              image.className = "tiktok-card-thumb";
+              image.className = "tiktok-post-thumb";
               image.src = item.thumbnail;
               image.alt = "";
               image.loading = "lazy";
@@ -351,10 +351,10 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
             }
 
             var content = document.createElement("div");
-            content.className = "tiktok-card-content";
+            content.className = "tiktok-post-body";
 
             var label = document.createElement("span");
-            label.className = "tiktok-card-label";
+            label.className = "tiktok-post-label";
             label.textContent = "TikTok";
 
             var title = document.createElement("h3");
@@ -368,7 +368,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
                 : "Video mới nhất");
 
             var arrow = document.createElement("span");
-            arrow.className = "tiktok-card-arrow";
+            arrow.className = "tiktok-post-arrow";
             arrow.textContent = "↗";
 
             content.append(label, title, meta, arrow);

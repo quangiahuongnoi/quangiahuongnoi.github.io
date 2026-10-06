@@ -11,8 +11,9 @@ SITE_URL = "https://quangiahuongnoi.github.io"
 
 TIKTOK_USERNAME = "quangiahuongnoi"
 LIVE_MONITOR_ENABLED = "true"
-  YOUTUBE_AUTO_ENABLED = "true"
-  YOUTUBE_CHANNEL_HANDLE = "quangiahuongnoi"
+TIKTOK_AUTO_ENABLED = "true"
+YOUTUBE_AUTO_ENABLED = "true"
+YOUTUBE_CHANNEL_HANDLE = "quangiahuongnoi"
 
 [[triggers]]
 crons = ["*/2 * * * *"]

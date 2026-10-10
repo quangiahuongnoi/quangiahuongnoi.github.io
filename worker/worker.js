@@ -965,11 +965,16 @@ async function syncDiscordLive(env, live) {
 }
 
 
+function cleanPartnerLogo(value) {
+  const logo = typeof value === "string" ? value.trim() : "";
+  if (!logo) return "";
+  return /^https?:\/\//i.test(logo) ? cleanOptionalUrl(logo, "logo đối tác") : cleanAsset(logo);
+}
 function cleanPartners(value) {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 40).map((item) => ({
-    name: cleanText(item && item.name, 100, "Tên đối tác"),
-    logo: item && item.logo ? cleanOptionalUrl(item.logo, "logo đối tác") : "",
+    name: cleanOptionalText(item && item.name, 100),
+    logo: cleanPartnerLogo(item && item.logo),
     category: cleanOptionalText(item && item.category, 100),
     description: cleanOptionalText(item && item.description, 500),
     website: item && item.website ? cleanOptionalUrl(item.website, "website đối tác") : "",

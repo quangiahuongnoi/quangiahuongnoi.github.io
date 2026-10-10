@@ -964,6 +964,19 @@ async function syncDiscordLive(env, live) {
   }
 }
 
+
+function cleanPartners(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 40).map((item) => ({
+    name: cleanText(item && item.name, 100, "Tên đối tác"),
+    logo: item && item.logo ? cleanOptionalUrl(item.logo, "logo đối tác") : "",
+    category: cleanOptionalText(item && item.category, 100),
+    description: cleanOptionalText(item && item.description, 500),
+    website: item && item.website ? cleanOptionalUrl(item.website, "website đối tác") : "",
+    socialUrl: item && item.socialUrl ? cleanOptionalUrl(item.socialUrl, "mạng xã hội đối tác") : ""
+  })).filter((item) => item.name);
+}
+
 function normalizeContent(input) {
   const siteName = cleanText(input.siteName, 80, "Tên hiển thị");
   const profileLabel = cleanText(input.profileLabel || "Profile cá nhân", 60, "Nhãn profile");
@@ -1004,6 +1017,7 @@ function normalizeContent(input) {
     live: cleanLive(input.live),
     schedule: cleanSchedule(input.schedule),
     highlights: cleanHighlights(input.highlights),
+    partners: cleanPartners(input.partners),
     youtube: cleanYouTube(input.youtube),
     tiktok: cleanTikTok(input.tiktok),
     music: cleanMusic(input.music),

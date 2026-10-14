@@ -55,9 +55,9 @@
         "id": "WV_GWyJgSkk",
         "label": "YouTube",
         "title": "valo with my fr🥲 #qghn #funny #valorant #fyp #viral",
-        "meta": "YouTube · vừa đăng",
+        "meta": "YouTube · 3 phút trước",
         "url": "https://www.youtube.com/watch?v=WV_GWyJgSkk",
-        "thumbnail": "https://i.ytimg.com/vi/WV_GWyJgSkk/hqdefault.jpg",
+        "thumbnail": "https://i.ytimg.com/vi/WV_GWyJgSkk/maxresdefault.jpg",
         "publishedAt": "2026-10-14T15:27:20Z"
       },
       {
@@ -79,7 +79,7 @@
         "publishedAt": "2026-05-27T05:15:16Z"
       }
     ],
-    "updatedAt": "2026-10-14T15:28:20.265Z"
+    "updatedAt": "2026-10-14T15:30:20.400Z"
   },
   "tiktok": {
     "enabled": true,
@@ -133,6 +133,6 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-10-14T15:28:20.265Z",
+  "updatedAt": "2026-10-14T15:30:20.400Z",
   "partners": []
 }

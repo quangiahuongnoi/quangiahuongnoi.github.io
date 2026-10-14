@@ -52,6 +52,15 @@
     "uploadsPlaylistId": "UU79DLlhQPRnG62JaTDcazPQ",
     "items": [
       {
+        "id": "WV_GWyJgSkk",
+        "label": "YouTube",
+        "title": "valo with my fr🥲 #qghn #funny #valorant #fyp #viral",
+        "meta": "YouTube · vừa đăng",
+        "url": "https://www.youtube.com/watch?v=WV_GWyJgSkk",
+        "thumbnail": "https://i.ytimg.com/vi/WV_GWyJgSkk/hqdefault.jpg",
+        "publishedAt": "2026-10-14T15:27:20Z"
+      },
+      {
         "id": "5BF9RGqe_K0",
         "label": "YouTube",
         "title": "6.7 và Qiqi =))))))",
@@ -68,17 +77,9 @@
         "url": "https://www.youtube.com/watch?v=grmxRJrRQyc",
         "thumbnail": "https://i.ytimg.com/vi/grmxRJrRQyc/maxresdefault.jpg",
         "publishedAt": "2026-05-27T05:15:16Z"
-      },
-      {
-        "id": "iGTuvpoGM1Q",
-        "label": "YouTube",
-        "title": "🔴QGHN LIVE: Lam ti HSR de",
-        "meta": "YouTube · 29/4/2026",
-        "url": "https://www.youtube.com/watch?v=iGTuvpoGM1Q",
-        "thumbnail": "https://i.ytimg.com/vi/iGTuvpoGM1Q/maxresdefault.jpg",
-        "publishedAt": "2026-04-29T04:52:48Z"
       }
-    ]
+    ],
+    "updatedAt": "2026-10-14T15:28:20.265Z"
   },
   "tiktok": {
     "enabled": true,
@@ -132,6 +133,6 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-10-05T15:01:32.102Z",
+  "updatedAt": "2026-10-14T15:28:20.265Z",
   "partners": []
 }

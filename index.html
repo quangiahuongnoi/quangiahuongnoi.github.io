@@ -85,6 +85,7 @@
     @media(max-width:700px){.video-embed-grid{grid-template-columns:1fr}.tiktok-embed-wrap{min-height:500px}}
 
 .partners-section{display:none!important}\n@media(max-width:760px){.tiktok-creator-section{padding:84px 16px}.tiktok-creator-heading{display:grid;align-items:start;gap:20px;margin-bottom:24px}.tiktok-creator-heading h2{font-size:clamp(36px,10vw,54px)}.tiktok-creator-heading p{font-size:16px}.tiktok-creator-open{width:max-content}.tiktok-creator-frame{padding:14px;border-radius:18px;min-height:220px}.tiktok-creator-frame:before{border-radius:18px}.tiktok-creator-embed{min-height:200px}.tiktok-creator-embed .tiktok-embed{min-width:288px!important}}
+.tiktok-creator-placeholder{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(100%,680px);min-height:360px;padding:42px 28px;text-align:center;border:1px solid #ffffff12;border-radius:20px;background:linear-gradient(145deg,#121212e8,#080808e8);box-shadow:inset 0 1px #ffffff08}.tiktok-creator-icon{display:grid;place-items:center;width:62px;height:62px;margin-bottom:18px;border:1px solid #ffffff18;border-radius:18px;background:#111;font-size:31px;box-shadow:0 0 35px #e1060018}.tiktok-creator-status{color:var(--hot);font:800 11px ui-monospace,monospace;letter-spacing:.18em}.tiktok-creator-placeholder h3{margin:10px 0 10px;font-size:clamp(24px,4vw,34px);letter-spacing:-.03em}.tiktok-creator-placeholder p{max-width:570px;margin:0;color:var(--muted);line-height:1.7}.tiktok-creator-load{display:inline-flex;align-items:center;gap:16px;margin-top:24px;padding:13px 18px;border:1px solid #ffffff1c;border-radius:12px;background:#151515;color:#fff;font-weight:800;cursor:pointer;box-shadow:inset 0 1px #ffffff0b,0 12px 30px #0008;transition:.2s}.tiktok-creator-load:hover{transform:translateY(-2px);border-color:var(--hot);box-shadow:0 14px 36px #e1060028}.tiktok-creator-load.is-loading{pointer-events:none;opacity:.7}.tiktok-creator-note{margin-top:13px;color:#777}.tiktok-creator-error{color:#aaa}.tiktok-creator-error strong{color:#fff}.tiktok-creator-error a{color:#fff;text-decoration:underline;text-underline-offset:3px}.tiktok-creator-embed[hidden]{display:none!important}@media(max-width:760px){.tiktok-creator-placeholder{min-height:320px;padding:34px 20px}.tiktok-creator-placeholder p{font-size:14px}.tiktok-creator-note{font-size:11px}}
 </style>
 <style id="priority5-brand">
 /* Priority 5 — Quản gia hướng nội brand layer */
@@ -194,24 +195,20 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       >Mở TikTok ↗</a>
     </div>
 
-    <div class="tiktok-creator-frame">
+    <div class="tiktok-creator-frame" id="tiktokCreatorFrame">
       <div class="tiktok-creator-glow" aria-hidden="true"></div>
-      <div class="tiktok-creator-embed">
-        <blockquote
-          class="tiktok-embed"
-          cite="https://www.tiktok.com/@quangiahuongnoi"
-          data-unique-id="quangiahuongnoi"
-          data-embed-type="creator"
-          style="max-width: 780px; min-width: 288px;"
-        >
-          <section>
-            <a
-              target="_blank"
-              href="https://www.tiktok.com/@quangiahuongnoi?refer=creator_embed"
-            >@quangiahuongnoi</a>
-          </section>
-        </blockquote>
+      <div class="tiktok-creator-placeholder" id="tiktokCreatorPlaceholder">
+        <div class="tiktok-creator-icon" aria-hidden="true">♪</div>
+        <span class="tiktok-creator-status">TIKTOK CREATOR</span>
+        <h3>Xem trang cá nhân TikTok</h3>
+        <p>Nhấn nút bên dưới để tải profile TikTok khi bạn cần. Cách này hạn chế việc TikTok gửi quá nhiều yêu cầu và giảm lỗi <strong>overload-protect</strong>.</p>
+        <button class="tiktok-creator-load" id="tiktokCreatorLoad" type="button">
+          <span>Hiển thị TikTok</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+        <small class="tiktok-creator-note">Profile sẽ được tải trực tiếp từ TikTok.</small>
       </div>
+      <div class="tiktok-creator-embed" id="tiktokCreatorEmbed" hidden></div>
     </div>
   </div>
 </section>
@@ -776,7 +773,56 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       })();
   })();
   </script>
-<script async src="https://www.tiktok.com/embed.js"></script>
+<script id="tiktok-creator-loader">
+(()=>{
+  const boot=()=>{
+    const button=document.getElementById('tiktokCreatorLoad');
+    const placeholder=document.getElementById('tiktokCreatorPlaceholder');
+    const embed=document.getElementById('tiktokCreatorEmbed');
+    if(!button||!placeholder||!embed) return;
+
+    let loading=false;
+    button.addEventListener('click',()=>{
+      if(loading) return;
+      loading=true;
+      button.classList.add('is-loading');
+      button.innerHTML='<span>Đang tải TikTok...</span><span aria-hidden="true">◌</span>';
+
+      embed.hidden=false;
+      embed.innerHTML='<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@quangiahuongnoi" data-unique-id="quangiahuongnoi" data-embed-type="creator" style="max-width:780px;min-width:288px;"><section><a target="_blank" href="https://www.tiktok.com/@quangiahuongnoi?refer=creator_embed">@quangiahuongnoi</a></section></blockquote>';
+
+      const script=document.createElement('script');
+      script.async=true;
+      script.src='https://www.tiktok.com/embed.js';
+      script.onload=()=>{
+        placeholder.hidden=true;
+        loading=false;
+      };
+      script.onerror=()=>{
+        embed.hidden=true;
+        loading=false;
+        button.classList.remove('is-loading');
+        button.innerHTML='<span>Thử tải lại</span><span aria-hidden="true">↻</span>';
+        const p=placeholder.querySelector('p');
+        if(p) p.innerHTML='<span class="tiktok-creator-error"><strong>TikTok đang giới hạn embed.</strong><br>Hãy thử lại sau một lúc hoặc mở profile trực tiếp trên TikTok.</span>';
+      };
+      document.body.appendChild(script);
+
+      window.setTimeout(()=>{
+        if(!placeholder.hidden && loading){
+          loading=false;
+          button.classList.remove('is-loading');
+          button.innerHTML='<span>Thử tải lại</span><span aria-hidden="true">↻</span>';
+          const p=placeholder.querySelector('p');
+          if(p) p.innerHTML='<span class="tiktok-creator-error"><strong>TikTok chưa phản hồi embed.</strong><br>Thử lại sau 10–30 giây hoặc mở profile trực tiếp.</span>';
+        }
+      },12000);
+    });
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+</script>
 <script id="priority5-brand-script">
 (()=>{
   const boot=()=>{

@@ -327,30 +327,16 @@ async function runYouTubeContentMonitor(env) {
 async function runTikTokContentMonitor(env) {
   const enabled = String(env.TIKTOK_AUTO_ENABLED || "").toLowerCase() === "true";
   if (!enabled) {
-    return {
-      ok: true,
-      changed: false,
-      enabled: false,
-      reason: "TikTok Auto Content đang tắt."
-    };
+    return { ok: true, changed: false, enabled: false, reason: "TikTok Auto Content đang tắt." };
   }
 
-  if (!env.APIFY_API_TOKEN) {
-    throw new HttpError(500, "Worker chưa có APIFY_API_TOKEN.");
-  }
+  if (!env.APIFY_API_TOKEN) throw new HttpError(500, "Worker chưa có APIFY_API_TOKEN.");
 
-  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi")
-    .trim()
-    .replace(/^@+/, "");
-
-  if (!username) {
-    throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
-  }
+  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
+  if (!username) throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
 
   const existing = await getGithubFile(env, "content.json");
-  if (!existing) {
-    throw new HttpError(404, "Không tìm thấy content.json.");
-  }
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
 
   let content;
   try {
@@ -365,180 +351,135 @@ async function runTikTokContentMonitor(env) {
 
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify({
-      username,
-      maxPosts: 3
-    }),
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({ username, maxPosts: 10 }),
     cache: "no-store"
   });
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(
-      "Apify TikTok API " +
-      response.status +
-      (detail ? ": " + detail.slice(0, 500) : "")
-    );
+    throw new Error("Apify TikTok API " + response.status + (detail ? ": " + detail.slice(0, 500) : ""));
   }
 
   const payload = await response.json();
+  const record = Array.isArray(payload)
+    ? payload.find((item) => item && Array.isArray(item.posts)) || payload[0] || {}
+    : (payload && typeof payload === "object" ? payload : {});
 
-  const record =
-    Array.isArray(payload)
-      ? payload.find((item) => item && Array.isArray(item.posts)) || payload[0] || {}
-      : payload && typeof payload === "object"
-        ? payload
-        : {};
+  let rawPosts = Array.isArray(record?.posts)
+    ? record.posts
+    : (Array.isArray(payload) ? payload : []);
 
-  const rawPosts =
-    Array.isArray(record?.posts)
-      ? record.posts
-      : Array.isArray(payload)
-        ? payload
-        : [];
+  // Fallback scraper nếu actor chính không trả về posts.
+  if (!rawPosts.length) {
+    const fallbackEndpoint =
+      "https://api.apify.com/v2/acts/transparent_meteorite~tiktok-public-profile-scraper/run-sync-get-dataset-items?token=" +
+      encodeURIComponent(env.APIFY_API_TOKEN);
+
+    const fallbackResponse = await fetch(fallbackEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        profiles: [username],
+        resultsType: "posts",
+        resultsPerPage: 10,
+        profileSorting: "latest"
+      }),
+      cache: "no-store"
+    });
+
+    if (fallbackResponse.ok) {
+      const fallbackPayload = await fallbackResponse.json();
+      if (Array.isArray(fallbackPayload)) rawPosts = fallbackPayload;
+    }
+  }
 
   const posts = rawPosts
     .map((post) => {
       const id = cleanOptionalText(
-        post?.id ||
-        post?.videoId ||
-        post?.video_id ||
-        post?.aweme_id ||
-        post?.awemeId ||
-        post?.itemId ||
-        post?.item_id,
+        post?.id || post?.postId || post?.videoId || post?.video_id ||
+        post?.aweme_id || post?.awemeId || post?.itemId || post?.item_id,
         64
       );
-
       if (!id) return null;
 
       const desc = cleanOptionalText(
-        post?.desc ||
-        post?.description ||
-        post?.title ||
-        post?.text,
+        post?.desc || post?.caption || post?.description || post?.title ||
+        post?.text || post?.content_desc,
         180
       );
 
       let createTime =
-        Number(post?.createTime) ||
-        Number(post?.create_time) ||
-        Number(post?.createdAt) ||
-        Number(post?.create_at) ||
-        0;
+        Number(post?.createTime) || Number(post?.create_time) ||
+        Number(post?.createdAt) || Number(post?.create_at) || 0;
 
-      if (createTime > 100000000000) {
-        createTime = Math.floor(createTime / 1000);
-      }
+      if (createTime > 100000000000) createTime = Math.floor(createTime / 1000);
 
       const publishedAt =
         createTime > 0 && Number.isFinite(createTime)
           ? new Date(createTime * 1000).toISOString()
-          : cleanOptionalText(post?.publishedAt || post?.published_at, 40);
+          : cleanOptionalText(
+              post?.createTimeISO || post?.publishedAt ||
+              post?.published_at || post?.createdAtISO,
+              40
+            );
 
-      const video = post?.video && typeof post.video === "object"
-        ? post.video
-        : {};
-
+      const video = post?.video && typeof post.video === "object" ? post.video : {};
       const cover = cleanOptionalUrl(
-        video?.cover ||
-        video?.coverUrl ||
-        video?.originCover ||
-        video?.origin_cover ||
-        post?.cover ||
-        post?.coverUrl ||
-        post?.cover_url ||
-        "",
+        video?.cover || video?.coverUrl || video?.originCover ||
+        video?.origin_cover || post?.cover || post?.coverUrl ||
+        post?.cover_url || "",
         "thumbnail TikTok"
       );
 
       const url =
         cleanOptionalUrl(
-          post?.webVideoUrl ||
-          post?.web_video_url ||
-          post?.shareUrl ||
-          post?.share_url ||
-          post?.url ||
-          "",
+          post?.webVideoUrl || post?.postUrl || post?.web_video_url ||
+          post?.shareUrl || post?.share_url || post?.url || "",
           "video TikTok"
         ) ||
-        ("https://www.tiktok.com/@" +
-          encodeURIComponent(username) +
-          "/video/" +
-          encodeURIComponent(id));
+        ("https://www.tiktok.com/@" + encodeURIComponent(username) +
+          "/video/" + encodeURIComponent(id));
 
       return {
         id,
         label: "TikTok",
         title: desc || "Video TikTok mới",
-        meta:
-          "TikTok" +
-          (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
+        meta: "TikTok" + (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
         url,
         thumbnail: cover,
         publishedAt
       };
     })
     .filter(Boolean)
-    .sort((a, b) => {
-      const aTime = Date.parse(a.publishedAt || "") || 0;
-      const bTime = Date.parse(b.publishedAt || "") || 0;
-      return bTime - aTime;
-    })
+    .sort((a, b) => (Date.parse(b.publishedAt || "") || 0) - (Date.parse(a.publishedAt || "") || 0))
     .slice(0, 3);
 
-  const previousTikTok =
-    content.tiktok && typeof content.tiktok === "object"
-      ? content.tiktok
-      : {};
+  if (!posts.length) {
+    throw new Error("Apify không trả về video công khai nào của @" + username + ".");
+  }
 
-  const previousItems = Array.isArray(previousTikTok.items)
-    ? previousTikTok.items
-    : [];
+  const previousTikTok = content.tiktok && typeof content.tiktok === "object" ? content.tiktok : {};
+  const previousItems = Array.isArray(previousTikTok.items) ? previousTikTok.items : [];
+  const comparable = (items) => JSON.stringify(items.map((item) => ({
+    id: item?.id || "",
+    title: item?.title || "",
+    url: item?.url || "",
+    thumbnail: item?.thumbnail || "",
+    publishedAt: item?.publishedAt || ""
+  })));
 
-  const previousComparable = JSON.stringify(
-    previousItems.map((item) => ({
-      id: item?.id || "",
-      title: item?.title || "",
-      url: item?.url || "",
-      thumbnail: item?.thumbnail || "",
-      publishedAt: item?.publishedAt || ""
-    }))
-  );
-
-  const nextComparable = JSON.stringify(
-    posts.map((item) => ({
-      id: item.id,
-      title: item.title,
-      url: item.url,
-      thumbnail: item.thumbnail,
-      publishedAt: item.publishedAt
-    }))
-  );
-
-  if (previousComparable === nextComparable) {
-    return {
-      ok: true,
-      changed: false,
-      enabled: true,
-      username,
-      items: posts
-    };
+  if (comparable(previousItems) === comparable(posts)) {
+    return { ok: true, changed: false, enabled: true, username, items: posts };
   }
 
   content.tiktok = {
     enabled: true,
     username,
-    profileUrl:
-      "https://www.tiktok.com/@" + encodeURIComponent(username),
+    profileUrl: "https://www.tiktok.com/@" + encodeURIComponent(username),
     items: posts,
     updatedAt: new Date().toISOString()
   };
-
   content.updatedAt = new Date().toISOString();
 
   await putGithubText(
@@ -549,22 +490,13 @@ async function runTikTokContentMonitor(env) {
     existing.sha
   );
 
-  console.log(
-    "[tiktok-monitor] updated",
-    JSON.stringify({
-      username,
-      count: posts.length,
-      ids: posts.map((post) => post.id)
-    })
-  );
-
-  return {
-    ok: true,
-    changed: true,
-    enabled: true,
+  console.log("[tiktok-monitor] updated", JSON.stringify({
     username,
-    items: posts
-  };
+    count: posts.length,
+    ids: posts.map((post) => post.id)
+  }));
+
+  return { ok: true, changed: true, enabled: true, username, items: posts };
 }
 
 async function youtubeApiRequest(env, resource, params) {

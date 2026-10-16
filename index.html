@@ -45,7 +45,7 @@
     .music-player{position:fixed;z-index:60;right:20px;bottom:20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;width:min(430px,calc(100% - 40px));padding:12px;border:1px solid #ffffff24;border-radius:16px;background:#0b0b0bef;box-shadow:0 18px 55px #000b,0 0 30px #e1060028;backdrop-filter:blur(16px)}.music-player[hidden]{display:none}.music-toggle{width:46px;height:46px;border:1px solid var(--hot);border-radius:50%;background:linear-gradient(135deg,#71110d,var(--red));color:#fff;font-size:17px;cursor:pointer}.music-info{min-width:0;display:grid;gap:3px}.music-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.music-info small{color:var(--muted);font-size:12px}.music-volume{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.music-volume input{width:76px;accent-color:var(--hot)}.music-collapse{width:28px;height:28px;border:1px solid #ffffff2a;border-radius:8px;background:#171717;color:#ddd;cursor:pointer;font-size:16px;line-height:1}.music-embed{position:fixed;z-index:60;right:20px;bottom:20px;width:min(480px,calc(100% - 40px));padding:12px;border:1px solid #ffffff24;border-radius:16px;background:#0b0b0bf2;box-shadow:0 18px 55px #000b,0 0 30px #e1060028;backdrop-filter:blur(16px)}.music-embed[hidden]{display:none}.music-embed-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 2px 10px}.music-embed-copy{min-width:0;display:grid;gap:2px}.music-embed-copy strong,.music-embed-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.music-embed-copy strong{font-size:14px}.music-embed-copy small{color:var(--muted);font-size:12px}.music-source-link{flex:none;color:var(--hot);font-size:12px;font-weight:750}.music-embed iframe{display:block;width:100%;height:202px;border:0;border-radius:12px;background:#111}.music-embed.spotify.compact iframe{height:152px}.music-embed.spotify.full iframe{height:352px}.music-embed.youtube.compact{width:min(380px,calc(100% - 40px))}.music-embed.youtube.full{width:min(520px,calc(100% - 40px))}.music-embed.youtube.full iframe{height:auto;aspect-ratio:16/9}.music-player.is-collapsed{width:auto;grid-template-columns:auto auto}.music-player.is-collapsed .music-info,.music-player.is-collapsed .music-volume,.music-embed.is-collapsed .music-source-link,.music-embed.is-collapsed iframe{display:none}.music-embed.is-collapsed{width:auto}.music-embed.is-collapsed .music-embed-head{margin:0}.music-embed.is-collapsed .music-embed-copy small{display:none}
     @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ringPulse{0%,100%{scale:1;opacity:.58}50%{scale:1.045;opacity:1}}@keyframes avatarFloat{0%,100%{translate:0 -3px}50%{translate:0 5px}}@keyframes avatarShine{0%,58%{transform:translateX(-145%) rotate(12deg)}76%,100%{transform:translateX(145%) rotate(12deg)}}@keyframes nameAura{0%,100%{opacity:.55;scale:.96}50%{opacity:1;scale:1.04}}@keyframes nameAccent{0%,100%{opacity:.58;scale:.82 1}50%{opacity:1;scale:1.08 1}}
     
-    .video-feed-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:26px}.video-feed-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#171717,#090909);transition:transform .2s,border-color .2s,box-shadow .2s;text-decoration:none}.video-feed-card:hover{transform:translateY(-5px);border-color:#ff2a1aa6;box-shadow:0 18px 48px #e106001a}.video-feed-body{padding:18px}.video-feed-label{display:block;margin-bottom:8px;color:#ff655b;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.video-feed-card h3{margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:17px;line-height:1.4;color:#fff}.video-feed-meta{margin:10px 0 0;color:var(--muted);font-size:13px}.video-feed-arrow{display:block;margin-top:15px;color:#ff655b;font-size:13px;font-weight:750}.video-feed-image{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.partners-section{display:none!important}@media(max-width:900px){.video-feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.video-feed-grid{grid-template-columns:1fr}}\n    .partners-section{width:min(100% - 48px,1288px);margin:auto;padding:112px 0;border-top:1px solid var(--border)}
+    .partners-section{width:min(100% - 48px,1288px);margin:auto;padding:112px 0;border-top:1px solid var(--border)}
     .partner-logo-track{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 18px;margin:0 0 28px;scroll-snap-type:x proximity;scrollbar-color:#e10600 #171717;scrollbar-width:thin}
     .partner-logo-chip{flex:0 0 170px;min-height:92px;display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#171717,#090909);scroll-snap-align:start}
     .partner-logo-chip img{width:42px;height:42px;object-fit:contain;border-radius:8px}.partner-logo-chip strong{font-size:14px;line-height:1.35}
@@ -146,7 +146,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
     <p>Cập nhật những video TikTok mới nhất của Quản gia hướng nội.</p>
   </div>
 
-  <div id="tiktokPosts" class="video-feed-grid tiktok-feed"></div>
+  <div id="tiktokPosts" class="tiktok-posts"></div>
 
   <a
     id="tiktokProfileLink"
@@ -167,8 +167,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
     </section>
 
     <section class="section" id="noi-bat" hidden>
-      <div class="section-head"><div class="label" id="highlights-label">03 / YOUTUBE</div><h2>Video YouTube mới nhất</h2><p>Những video và Shorts mới nhất từ kênh YouTube của Quản gia hướng nội.</p></div>
-      <div class="video-feed-grid youtube-feed" id="highlight-grid"></div>
+      <div class="section-head"><div class="label" id="highlights-label">03 / YOUTUBE</div><h2>Video/Shorts mới</h2><p>Những nội dung đáng xem gần đây từ Quản gia hướng nội.</p></div>
+      <div class="highlight-grid" id="highlight-grid"></div>
     </section>
 
     <section class="section" id="lien-ket">
@@ -413,7 +413,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
         } else {
           tiktokItems.forEach(function(item) {
             var card = document.createElement("a");
-            card.className = "video-feed-card";
+            card.className = "tiktok-post";
             card.href = item.url;
             card.target = "_blank";
             card.rel = "noopener noreferrer";
@@ -428,10 +428,10 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
             }
 
             var content = document.createElement("div");
-            content.className = "video-feed-body";
+            content.className = "tiktok-post-body";
 
             var label = document.createElement("span");
-            label.className = "video-feed-label";
+            label.className = "tiktok-post-label";
             label.textContent = "TikTok";
 
             var title = document.createElement("h3");
@@ -445,7 +445,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
                 : "Video mới nhất");
 
             var arrow = document.createElement("span");
-            arrow.className = "video-feed-arrow";
+            arrow.className = "tiktok-post-arrow";
             arrow.textContent = "↗";
 
             content.append(label, title, meta, arrow);
@@ -502,9 +502,9 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       highlights.forEach(function(item){
         var card=safeUrl(item.url)?document.createElement("a"):document.createElement("article");
         var kicker=document.createElement("span"),heading=document.createElement("h3"),meta=document.createElement("p"),arrow=document.createElement("span");
-        card.className="video-feed-card";
-        kicker.className="video-feed-label";
-        arrow.className="video-feed-arrow";
+        card.className="highlight-card";
+        kicker.className="highlight-kicker";
+        arrow.className="arrow";
         kicker.textContent=nonEmpty(item.label)||(youtubeItems.length?"YouTube":"Nội dung mới");
         heading.textContent=nonEmpty(item.title);
         meta.textContent=nonEmpty(item.meta)||(youtubeItems.length?"YouTube":"Xem nội dung mới nhất của Quản gia hướng nội.");
@@ -512,7 +512,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
 
         if(safeImage(item.thumbnail)){
           var thumb=document.createElement("img");
-          thumb.className="video-feed-image";
+          thumb.className="highlight-thumb";
           thumb.src=item.thumbnail;
           thumb.alt="";
           thumb.loading="lazy";

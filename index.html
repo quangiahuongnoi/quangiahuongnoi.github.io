@@ -421,7 +421,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       var tiktokPosts = document.getElementById("tiktokPosts");
 
       function extractTikTokId(url, fallback) {
-        var match = String(url || "").match(/\\/video\\/(\\d+)/i);
+        var match = String(url || "").match(/\/video\/(\d+)/i);
         return match ? match[1] : (fallback || "");
       }
 

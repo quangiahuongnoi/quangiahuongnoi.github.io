@@ -409,7 +409,9 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
           time.append(day,hour);copy.append(eventTitle,note);item.append(time,copy);list.appendChild(item);
         });
       }
-            // ===== TIKTOK EMBED FEED =====
+            // ===== TIKTOK PLAYER FEED =====
+      // Không dùng tiktok.com/embed.js vì SDK này có thể trả "overload-protect".
+      // Dùng TikTok Player theo video ID để mỗi video là một iframe độc lập.
       var tiktokItems = data.tiktok && Array.isArray(data.tiktok.items)
         ? data.tiktok.items.filter(function(item) {
             return item && nonEmpty(item.title) && safeUrl(item.url);
@@ -419,27 +421,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       var tiktokPosts = document.getElementById("tiktokPosts");
 
       function extractTikTokId(url, fallback) {
-        var match = String(url || "").match(/\/video\/(\d+)/i);
+        var match = String(url || "").match(/\\/video\\/(\\d+)/i);
         return match ? match[1] : (fallback || "");
-      }
-
-      function renderTikTokEmbeds() {
-        if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === "function") {
-          try { window.tiktokEmbed.lib.render(); } catch (e) {}
-        }
-      }
-
-      function ensureTikTokEmbedScript() {
-        if (document.querySelector('script[data-tiktok-embed]')) {
-          renderTikTokEmbeds();
-          return;
-        }
-        var script = document.createElement("script");
-        script.src = "https://www.tiktok.com/embed.js";
-        script.async = true;
-        script.setAttribute("data-tiktok-embed", "true");
-        script.onload = renderTikTokEmbeds;
-        document.body.appendChild(script);
       }
 
       if (tiktokPosts) {
@@ -452,25 +435,35 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
             var card = document.createElement("article");
             card.className = "video-embed-card";
 
-            var wrap = document.createElement("div");
-            wrap.className = "tiktok-embed-wrap";
-
-            var blockquote = document.createElement("blockquote");
-            blockquote.className = "tiktok-embed";
-            blockquote.setAttribute("cite", item.url);
-            blockquote.setAttribute("data-video-id", extractTikTokId(item.url, item.id));
-            blockquote.style.maxWidth = "605px";
-            blockquote.style.minWidth = "325px";
-
-            var section = document.createElement("section");
-            var profileLink = document.createElement("a");
-            profileLink.href = item.url;
-            profileLink.target = "_blank";
-            profileLink.rel = "noopener noreferrer";
-            profileLink.textContent = nonEmpty(item.title);
-            section.appendChild(profileLink);
-            blockquote.appendChild(section);
-            wrap.appendChild(blockquote);
+            var videoId = extractTikTokId(item.url, item.id);
+            if (videoId) {
+              var iframe = document.createElement("iframe");
+              iframe.className = "video-embed-frame tiktok-player-frame";
+              iframe.src =
+                "https://www.tiktok.com/player/v1/" +
+                encodeURIComponent(videoId) +
+                "?description=1&music_info=1&rel=0&native_context_menu=0";
+              iframe.title = nonEmpty(item.title) || "TikTok video";
+              iframe.loading = "lazy";
+              iframe.allow = "fullscreen; autoplay";
+              iframe.setAttribute("allowfullscreen", "");
+              iframe.setAttribute("scrolling", "no");
+              iframe.referrerPolicy = "strict-origin-when-cross-origin";
+              iframe.style.width = "100%";
+              iframe.style.height = "575px";
+              iframe.style.border = "0";
+              iframe.style.borderRadius = "12px";
+              iframe.style.background = "#111";
+              card.appendChild(iframe);
+            } else {
+              var fallback = document.createElement("a");
+              fallback.className = "video-embed-fallback";
+              fallback.href = item.url;
+              fallback.target = "_blank";
+              fallback.rel = "noopener noreferrer";
+              fallback.textContent = "Xem video TikTok ↗";
+              card.appendChild(fallback);
+            }
 
             var info = document.createElement("div");
             info.className = "video-embed-info";
@@ -494,15 +487,14 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
             link.textContent = "Mở trên TikTok ↗";
 
             info.append(label, title, meta, link);
-            card.append(wrap, info);
+            card.append(info);
             tiktokPosts.appendChild(card);
           });
-
-          ensureTikTokEmbedScript();
         }
       }
 
-      // ===== END TIKTOK EMBED FEED =====
+      // ===== END TIKTOK PLAYER FEED =====
+
       var youtubeItems=data.youtube&&data.youtube.enabled&&Array.isArray(data.youtube.items)
         ?data.youtube.items.filter(function(item){return item&&nonEmpty(item.title)&&safeUrl(item.url);}).slice(0,3)
         :[];

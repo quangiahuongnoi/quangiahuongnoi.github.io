@@ -45,7 +45,7 @@
     .music-player{position:fixed;z-index:60;right:20px;bottom:20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;width:min(430px,calc(100% - 40px));padding:12px;border:1px solid #ffffff24;border-radius:16px;background:#0b0b0bef;box-shadow:0 18px 55px #000b,0 0 30px #e1060028;backdrop-filter:blur(16px)}.music-player[hidden]{display:none}.music-toggle{width:46px;height:46px;border:1px solid var(--hot);border-radius:50%;background:linear-gradient(135deg,#71110d,var(--red));color:#fff;font-size:17px;cursor:pointer}.music-info{min-width:0;display:grid;gap:3px}.music-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.music-info small{color:var(--muted);font-size:12px}.music-volume{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.music-volume input{width:76px;accent-color:var(--hot)}.music-collapse{width:28px;height:28px;border:1px solid #ffffff2a;border-radius:8px;background:#171717;color:#ddd;cursor:pointer;font-size:16px;line-height:1}.music-embed{position:fixed;z-index:60;right:20px;bottom:20px;width:min(480px,calc(100% - 40px));padding:12px;border:1px solid #ffffff24;border-radius:16px;background:#0b0b0bf2;box-shadow:0 18px 55px #000b,0 0 30px #e1060028;backdrop-filter:blur(16px)}.music-embed[hidden]{display:none}.music-embed-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 2px 10px}.music-embed-copy{min-width:0;display:grid;gap:2px}.music-embed-copy strong,.music-embed-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.music-embed-copy strong{font-size:14px}.music-embed-copy small{color:var(--muted);font-size:12px}.music-source-link{flex:none;color:var(--hot);font-size:12px;font-weight:750}.music-embed iframe{display:block;width:100%;height:202px;border:0;border-radius:12px;background:#111}.music-embed.spotify.compact iframe{height:152px}.music-embed.spotify.full iframe{height:352px}.music-embed.youtube.compact{width:min(380px,calc(100% - 40px))}.music-embed.youtube.full{width:min(520px,calc(100% - 40px))}.music-embed.youtube.full iframe{height:auto;aspect-ratio:16/9}.music-player.is-collapsed{width:auto;grid-template-columns:auto auto}.music-player.is-collapsed .music-info,.music-player.is-collapsed .music-volume,.music-embed.is-collapsed .music-source-link,.music-embed.is-collapsed iframe{display:none}.music-embed.is-collapsed{width:auto}.music-embed.is-collapsed .music-embed-head{margin:0}.music-embed.is-collapsed .music-embed-copy small{display:none}
     @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ringPulse{0%,100%{scale:1;opacity:.58}50%{scale:1.045;opacity:1}}@keyframes avatarFloat{0%,100%{translate:0 -3px}50%{translate:0 5px}}@keyframes avatarShine{0%,58%{transform:translateX(-145%) rotate(12deg)}76%,100%{transform:translateX(145%) rotate(12deg)}}@keyframes nameAura{0%,100%{opacity:.55;scale:.96}50%{opacity:1;scale:1.04}}@keyframes nameAccent{0%,100%{opacity:.58;scale:.82 1}50%{opacity:1;scale:1.08 1}}
     
-    .tiktok-creator-card{margin-top:28px;padding:24px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(145deg,#161616,#090909);box-shadow:inset 0 1px #ffffff08;overflow:hidden}.tiktok-creator-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:18px}.tiktok-creator-head h3{margin:6px 0 8px;font-size:clamp(24px,3vw,36px);line-height:1.1;letter-spacing:-.04em}.tiktok-creator-head p{max-width:650px;margin:0;color:var(--muted);line-height:1.6}.tiktok-creator-open{flex:none;display:inline-flex;align-items:center;padding:10px 14px;border:1px solid #383838;border-radius:10px;font-size:13px;font-weight:750;transition:.18s}.tiktok-creator-open:hover{border-color:var(--hot);color:#ff7a71}.tiktok-creator-embed{display:flex;justify-content:center;min-height:220px;padding:4px 0}.tiktok-creator-embed .tiktok-embed{margin:0!important;width:100%!important}
+    .tiktok-creator-section{position:relative;overflow:hidden;width:100%;padding:112px 24px;border-top:1px solid var(--border);background:radial-gradient(circle at 50% 42%,#e1060014,transparent 42%),linear-gradient(180deg,#0b0b0b,#070707)}.tiktok-creator-section:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0 8%,#ffffff04 8.1%,transparent 8.2% 91.8%,#ffffff04 91.9%,transparent 92%);mask-image:linear-gradient(to bottom,transparent,#000 22%,#000 78%,transparent)}.tiktok-creator-shell{position:relative;width:min(100%,1288px);margin:auto}.tiktok-creator-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:34px}.tiktok-creator-kicker{display:inline-flex;align-items:center;gap:10px;color:var(--hot);font:700 13px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.tiktok-creator-kicker:before{content:"";width:28px;height:1px;background:var(--hot);box-shadow:0 0 10px var(--hot)}.tiktok-creator-heading h2{margin:10px 0 0}.tiktok-creator-heading p{max-width:690px;margin:18px 0 0;color:var(--muted);font-size:18px;line-height:1.7}.tiktok-creator-open{flex:none;display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border:1px solid #ffffff20;border-radius:11px;background:#111;color:#fff;font-size:13px;font-weight:800;box-shadow:inset 0 1px #ffffff0d,0 10px 28px #0006;transition:.2s}.tiktok-creator-open:hover{border-color:var(--hot);color:#fff;transform:translateY(-2px);box-shadow:0 12px 32px #e1060028}.tiktok-creator-frame{position:relative;display:flex;justify-content:center;min-height:280px;padding:24px;border:1px solid #ffffff14;border-radius:24px;background:linear-gradient(145deg,#141414f2,#090909f5);box-shadow:0 24px 80px #0008,inset 0 1px #ffffff0a;overflow:hidden}.tiktok-creator-frame:before{content:"";position:absolute;inset:0;border-radius:24px;pointer-events:none;background:linear-gradient(120deg,#e1060020,transparent 28%,transparent 72%,#ff2a1a12)}.tiktok-creator-glow{position:absolute;z-index:0;left:50%;top:50%;width:min(700px,90%);height:260px;transform:translate(-50%,-50%);border-radius:50%;background:#e1060030;filter:blur(70px);opacity:.65;pointer-events:none}.tiktok-creator-embed{position:relative;z-index:1;display:flex;justify-content:center;align-items:flex-start;width:100%;min-height:230px}.tiktok-creator-embed .tiktok-embed{margin:0!important;width:100%!important;max-width:780px!important;min-width:288px!important}
     .partners-section{width:min(100% - 48px,1288px);margin:auto;padding:112px 0;border-top:1px solid var(--border)}
     .partner-logo-track{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 18px;margin:0 0 28px;scroll-snap-type:x proximity;scrollbar-color:#e10600 #171717;scrollbar-width:thin}
     .partner-logo-chip{flex:0 0 170px;min-height:92px;display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#171717,#090909);scroll-snap-align:start}
@@ -166,39 +166,6 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
 
   <div id="tiktokPosts" class="video-embed-grid"></div>
 
-  <div class="tiktok-creator-card">
-    <div class="tiktok-creator-head">
-      <div>
-        <span class="video-embed-label">TikTok Creator</span>
-        <h3>Trang cá nhân TikTok</h3>
-        <p>Xem profile, số liệu và các video mới nhất của Quản gia hướng nội ngay trên website.</p>
-      </div>
-      <a
-        class="tiktok-creator-open"
-        href="https://www.tiktok.com/@quangiahuongnoi"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Mở TikTok ↗</a>
-    </div>
-
-    <div class="tiktok-creator-embed">
-      <blockquote
-        class="tiktok-embed"
-        cite="https://www.tiktok.com/@quangiahuongnoi"
-        data-unique-id="quangiahuongnoi"
-        data-embed-type="creator"
-        style="max-width: 780px; min-width: 288px;"
-      >
-        <section>
-          <a
-            target="_blank"
-            href="https://www.tiktok.com/@quangiahuongnoi?refer=creator_embed"
-          >@quangiahuongnoi</a>
-        </section>
-      </blockquote>
-    </div>
-  </div>
-
   <a
     id="tiktokProfileLink"
     class="tiktok-profile-link"
@@ -208,6 +175,44 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
   >
     Xem tất cả trên TikTok →
   </a>
+</section>
+
+<section class="tiktok-creator-section" id="tiktok-creator">
+  <div class="tiktok-creator-shell">
+    <div class="tiktok-creator-heading">
+      <div>
+        <span class="tiktok-creator-kicker">03 / TIKTOK CREATOR</span>
+        <h2>Trang cá nhân TikTok</h2>
+        <p>Khám phá profile, số liệu và những video mới nhất của Quản gia hướng nội ngay trên website.</p>
+      </div>
+      <a
+        class="tiktok-creator-open"
+        href="https://www.tiktok.com/@quangiahuongnoi"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Mở TikTok ↗</a>
+    </div>
+
+    <div class="tiktok-creator-frame">
+      <div class="tiktok-creator-glow" aria-hidden="true"></div>
+      <div class="tiktok-creator-embed">
+        <blockquote
+          class="tiktok-embed"
+          cite="https://www.tiktok.com/@quangiahuongnoi"
+          data-unique-id="quangiahuongnoi"
+          data-embed-type="creator"
+          style="max-width: 780px; min-width: 288px;"
+        >
+          <section>
+            <a
+              target="_blank"
+              href="https://www.tiktok.com/@quangiahuongnoi?refer=creator_embed"
+            >@quangiahuongnoi</a>
+          </section>
+        </blockquote>
+      </div>
+    </div>
+  </div>
 </section>
     <section class="section" id="lich-live" hidden>
       <div class="section-head"><div class="label">Lịch phát</div><h2 data-live-heading>Lên sóng cùng Quản gia</h2><p data-live-subheading>Lịch livestream và những buổi chơi game sắp tới.</p></div>

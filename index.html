@@ -66,7 +66,24 @@
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
     body{font-size:var(--font-body)}.brand,h1,h2,.lead,.card-text strong{font-family:var(--font-heading-family,var(--font-body-family,inherit))}nav a{font-size:var(--font-nav)}.eyebrow{font-size:var(--font-eyebrow)}.desc{font-size:var(--font-desc)}.label{font-size:var(--font-label)}.body-copy{font-size:var(--font-copy)}.chips span{font-size:var(--font-chip)}.section-head p,.donate-copy p{font-size:var(--font-section)}.card-text strong{font-size:var(--font-card)}.card-text small{font-size:var(--font-small)}footer{font-size:var(--font-footer)}
-  </style>
+  
+    /* ===== YouTube / TikTok embedded video feeds ===== */
+    .video-embed-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+    .video-embed-card{min-width:0;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#171717,#090909);box-shadow:inset 0 1px #ffffff08;transition:.2s}
+    .video-embed-card:hover{transform:translateY(-4px);border-color:#ff2a1aa6;box-shadow:0 18px 48px #e106001a}
+    .video-embed-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:#050505}
+    .tiktok-embed-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:480px;padding:8px;background:#050505;overflow:hidden}
+    .tiktok-embed-wrap .tiktok-embed{margin:0!important;max-width:605px!important;min-width:325px!important;width:100%!important}
+    .video-embed-info{padding:17px 18px 19px}
+    .video-embed-label{display:block;margin-bottom:7px;color:#ff655b;font:700 11px ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}
+    .video-embed-info h3{margin:0;font-size:17px;line-height:1.4}
+    .video-embed-meta{margin:8px 0 0;color:var(--muted);font-size:13px}
+    .video-embed-link{display:inline-flex;margin-top:13px;color:#ff655b;font-size:13px;font-weight:800}
+    .video-feed-empty{padding:28px;border:1px dashed #393939;border-radius:14px;color:var(--muted);text-align:center}
+    @media(max-width:1000px){.video-embed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:700px){.video-embed-grid{grid-template-columns:1fr}.tiktok-embed-wrap{min-height:500px}}
+
+.partners-section{display:none!important}\n</style>
 <style id="priority5-brand">
 /* Priority 5 — Quản gia hướng nội brand layer */
 .qghn-mascot{position:fixed;right:20px;bottom:20px;z-index:90;width:54px;height:54px;display:grid;place-items:center;border:1px solid #ff2a1a70;border-radius:50%;background:#0b0b0bf0;box-shadow:0 0 28px #e1060038;cursor:pointer;font-size:28px;animation:qghnFloat 3.6s ease-in-out infinite;transition:transform .2s,box-shadow .2s}
@@ -141,12 +158,12 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
 
 <section class="tiktok-section">
   <div class="section-title">
-    <span class="section-kicker">02/ TIKTOK</span>
-    <h2>Video mới nhất</h2>
-    <p>Cập nhật những video TikTok mới nhất của Quản gia hướng nội.</p>
+    <span class="section-kicker">02 / TIKTOK</span>
+    <h2>Video TikTok mới nhất</h2>
+    <p>Nhúng trực tiếp các video TikTok mới nhất của Quản gia hướng nội.</p>
   </div>
 
-  <div id="tiktokPosts" class="tiktok-posts"></div>
+  <div id="tiktokPosts" class="video-embed-grid"></div>
 
   <a
     id="tiktokProfileLink"
@@ -167,7 +184,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
     </section>
 
     <section class="section" id="noi-bat" hidden>
-      <div class="section-head"><div class="label" id="highlights-label">03 / YOUTUBE</div><h2>Video/Shorts mới</h2><p>Những nội dung đáng xem gần đây từ Quản gia hướng nội.</p></div>
+      <div class="section-head"><div class="label" id="highlights-label">03 / YOUTUBE</div><h2>Video YouTube mới nhất</h2><p>Nhúng trực tiếp các video và Shorts mới nhất từ kênh YouTube của Quản gia hướng nội.</p></div>
       <div class="highlight-grid" id="highlight-grid"></div>
     </section>
 
@@ -393,141 +410,164 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
           time.append(day,hour);copy.append(eventTitle,note);item.append(time,copy);list.appendChild(item);
         });
       }
-            // ===== TIKTOK LATEST VIDEOS =====
+            // ===== TIKTOK EMBED FEED =====
       var tiktokItems = data.tiktok && Array.isArray(data.tiktok.items)
         ? data.tiktok.items.filter(function(item) {
-            return item &&
-              nonEmpty(item.title) &&
-              safeUrl(item.url);
+            return item && nonEmpty(item.title) && safeUrl(item.url);
           }).slice(0, 3)
         : [];
 
       var tiktokPosts = document.getElementById("tiktokPosts");
 
+      function extractTikTokId(url, fallback) {
+        var match = String(url || "").match(/\/video\/(\d+)/i);
+        return match ? match[1] : (fallback || "");
+      }
+
+      function renderTikTokEmbeds() {
+        if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === "function") {
+          try { window.tiktokEmbed.lib.render(); } catch (e) {}
+        }
+      }
+
+      function ensureTikTokEmbedScript() {
+        if (document.querySelector('script[data-tiktok-embed]')) {
+          renderTikTokEmbeds();
+          return;
+        }
+        var script = document.createElement("script");
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        script.setAttribute("data-tiktok-embed", "true");
+        script.onload = renderTikTokEmbeds;
+        document.body.appendChild(script);
+      }
+
       if (tiktokPosts) {
         tiktokPosts.textContent = "";
 
         if (!tiktokItems.length) {
-          tiktokPosts.innerHTML =
-            '<p class="tiktok-empty">Chưa có video TikTok mới.</p>';
+          tiktokPosts.innerHTML = '<p class="video-feed-empty">Chưa có video TikTok mới.</p>';
         } else {
           tiktokItems.forEach(function(item) {
-            var card = document.createElement("a");
-            card.className = "tiktok-post";
-            card.href = item.url;
-            card.target = "_blank";
-            card.rel = "noopener noreferrer";
+            var card = document.createElement("article");
+            card.className = "video-embed-card";
 
-            if (safeImage(item.thumbnail)) {
-              var image = document.createElement("img");
-              image.className = "tiktok-post-thumb";
-              image.src = item.thumbnail;
-              image.alt = "";
-              image.loading = "lazy";
-              card.appendChild(image);
-            }
+            var wrap = document.createElement("div");
+            wrap.className = "tiktok-embed-wrap";
 
-            var content = document.createElement("div");
-            content.className = "tiktok-post-body";
+            var blockquote = document.createElement("blockquote");
+            blockquote.className = "tiktok-embed";
+            blockquote.setAttribute("cite", item.url);
+            blockquote.setAttribute("data-video-id", extractTikTokId(item.url, item.id));
+            blockquote.style.maxWidth = "605px";
+            blockquote.style.minWidth = "325px";
+
+            var section = document.createElement("section");
+            var profileLink = document.createElement("a");
+            profileLink.href = item.url;
+            profileLink.target = "_blank";
+            profileLink.rel = "noopener noreferrer";
+            profileLink.textContent = nonEmpty(item.title);
+            section.appendChild(profileLink);
+            blockquote.appendChild(section);
+            wrap.appendChild(blockquote);
+
+            var info = document.createElement("div");
+            info.className = "video-embed-info";
 
             var label = document.createElement("span");
-            label.className = "tiktok-post-label";
+            label.className = "video-embed-label";
             label.textContent = "TikTok";
 
             var title = document.createElement("h3");
             title.textContent = nonEmpty(item.title);
 
             var meta = document.createElement("p");
-            meta.textContent =
-              nonEmpty(item.meta) ||
-              (item.publishedAt
-                ? formatTikTokDate(item.publishedAt)
-                : "Video mới nhất");
+            meta.className = "video-embed-meta";
+            meta.textContent = nonEmpty(item.meta) || "Video TikTok mới nhất";
 
-            var arrow = document.createElement("span");
-            arrow.className = "tiktok-post-arrow";
-            arrow.textContent = "↗";
+            var link = document.createElement("a");
+            link.className = "video-embed-link";
+            link.href = item.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "Mở trên TikTok ↗";
 
-            content.append(label, title, meta, arrow);
-            card.appendChild(content);
-
+            info.append(label, title, meta, link);
+            card.append(wrap, info);
             tiktokPosts.appendChild(card);
           });
+
+          ensureTikTokEmbedScript();
         }
       }
 
-      function formatTikTokDate(value) {
-        var time = Date.parse(value);
-
-        if (!Number.isFinite(time)) return "TikTok";
-
-        var diff = Math.max(0, Date.now() - time);
-        var minutes = Math.floor(diff / 60000);
-
-        if (minutes < 60) {
-          return minutes <= 1
-            ? "Vừa đăng"
-            : minutes + " phút trước";
-        }
-
-        var hours = Math.floor(minutes / 60);
-
-        if (hours < 24) {
-          return hours === 1
-            ? "1 giờ trước"
-            : hours + " giờ trước";
-        }
-
-        var days = Math.floor(hours / 24);
-
-        if (days < 7) {
-          return days === 1
-            ? "Hôm qua"
-            : days + " ngày trước";
-        }
-
-        return "TikTok";
-      }
-      // ===== END TIKTOK LATEST VIDEOS =====
+      // ===== END TIKTOK EMBED FEED =====
       var youtubeItems=data.youtube&&data.youtube.enabled&&Array.isArray(data.youtube.items)
-        ?data.youtube.items.filter(function(item){return item&&nonEmpty(item.title)&&safeUrl(item.url);})
+        ?data.youtube.items.filter(function(item){return item&&nonEmpty(item.title)&&safeUrl(item.url);}).slice(0,3)
         :[];
       var manualHighlights=Array.isArray(data.highlights)
-        ?data.highlights.filter(function(item){return item&&nonEmpty(item.title);})
+        ?data.highlights.filter(function(item){return item&&nonEmpty(item.title)&&safeUrl(item.url);})
         :[];
       var highlights=youtubeItems.length?youtubeItems:manualHighlights;
       var highlightsSection=document.getElementById("noi-bat"),highlightsGrid=document.getElementById("highlight-grid");
       highlightsSection.hidden=!highlights.length;
+      highlightsGrid.className="video-embed-grid";
       highlightsGrid.textContent="";
+
+      function extractYouTubeId(url, fallback) {
+        var value=String(url||"");
+        var match=value.match(/[?&]v=([A-Za-z0-9_-]{6,})/i);
+        if(match) return match[1];
+        match=value.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+        if(match) return match[1];
+        match=value.match(/youtube\.com\/(?:shorts|embed)\/([A-Za-z0-9_-]{6,})/i);
+        return match ? match[1] : (fallback || "");
+      }
+
       highlights.forEach(function(item){
-        var card=safeUrl(item.url)?document.createElement("a"):document.createElement("article");
-        var kicker=document.createElement("span"),heading=document.createElement("h3"),meta=document.createElement("p"),arrow=document.createElement("span");
-        card.className="highlight-card";
-        kicker.className="highlight-kicker";
-        arrow.className="arrow";
-        kicker.textContent=nonEmpty(item.label)||(youtubeItems.length?"YouTube":"Nội dung mới");
+        var card=document.createElement("article");
+        card.className="video-embed-card";
+
+        var videoId=extractYouTubeId(item.url,item.id);
+        if(videoId){
+          var iframe=document.createElement("iframe");
+          iframe.className="video-embed-frame";
+          iframe.src="https://www.youtube.com/embed/"+encodeURIComponent(videoId)+"?rel=0&modestbranding=1";
+          iframe.title=nonEmpty(item.title)||"YouTube video";
+          iframe.loading="lazy";
+          iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+          iframe.allowFullscreen=true;
+          card.appendChild(iframe);
+        }
+
+        var info=document.createElement("div");
+        info.className="video-embed-info";
+
+        var kicker=document.createElement("span");
+        kicker.className="video-embed-label";
+        kicker.textContent="YouTube";
+
+        var heading=document.createElement("h3");
         heading.textContent=nonEmpty(item.title);
-        meta.textContent=nonEmpty(item.meta)||(youtubeItems.length?"YouTube":"Xem nội dung mới nhất của Quản gia hướng nội.");
-        arrow.textContent=safeUrl(item.url)?"Xem ngay ↗":"";
 
-        if(safeImage(item.thumbnail)){
-          var thumb=document.createElement("img");
-          thumb.className="highlight-thumb";
-          thumb.src=item.thumbnail;
-          thumb.alt="";
-          thumb.loading="lazy";
-          card.classList.add("has-thumb");
-          card.appendChild(thumb);
-        }
+        var meta=document.createElement("p");
+        meta.className="video-embed-meta";
+        meta.textContent=nonEmpty(item.meta)||"YouTube";
 
-        card.append(kicker,heading,meta,arrow);
-        if(card.tagName==="A"){
-          card.href=item.url;
-          card.target="_blank";
-          card.rel="noreferrer";
-        }
+        var link=document.createElement("a");
+        link.className="video-embed-link";
+        link.href=item.url;
+        link.target="_blank";
+        link.rel="noopener noreferrer";
+        link.textContent="Mở trên YouTube ↗";
+
+        info.append(kicker,heading,meta,link);
+        card.appendChild(info);
         highlightsGrid.appendChild(card);
       });
+
       var highlightNumber=2+(hasLive?1:0);
       document.getElementById("highlights-label").textContent=("0"+highlightNumber).slice(-2)+" / Nội dung nổi bật";
       var linkNumber=highlightNumber+(highlights.length?1:0);

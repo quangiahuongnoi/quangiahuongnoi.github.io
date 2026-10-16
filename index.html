@@ -358,7 +358,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
       });
     }
 
-    function renderCreatorContent(data){
+    function renderCreatorContent(data, options){
+      options = options || {};
       renderPartners(data);
       var live=data.live&&typeof data.live==="object"?data.live:{};
       var schedule=data.schedule&&typeof data.schedule==="object"?data.schedule:{};
@@ -409,6 +410,12 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
           time.append(day,hour);copy.append(eventTitle,note);item.append(time,copy);list.appendChild(item);
         });
       }
+
+      // During background LIVE polling, update only LIVE/schedule UI.
+      // Do not rebuild TikTok/YouTube/media embeds, otherwise their iframes reload
+      // and interrupt videos that the visitor is currently watching.
+      if(options.liveOnly) return;
+
             // ===== TIKTOK PLAYER FEED =====
       // Không dùng tiktok.com/embed.js vì SDK này có thể trả "overload-protect".
       // Dùng TikTok Player theo video ID để mỗi video là một iframe độc lập.
@@ -696,7 +703,7 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
 
       // Tự kiểm tra trạng thái LIVE định kỳ để trang đang mở không cần F5.
       (function startLivePolling(){
-        var LIVE_POLL_MS = 20000;
+        var LIVE_POLL_MS = 30000;
         var livePollBusy = false;
 
         function pollLiveStatus(){
@@ -715,8 +722,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
               return response.json();
             })
             .then(function(data){
-              // Chỉ cập nhật khu vực LIVE/lịch; không khởi tạo lại music player.
-              renderCreatorContent(data);
+              // Chỉ cập nhật LIVE/lịch; tuyệt đối không rebuild các iframe media.
+              renderCreatorContent(data, {liveOnly:true});
             })
             .catch(function(){ /* Bỏ qua lỗi tạm thời; lần kiểm tra tiếp theo sẽ thử lại. */ })
             .finally(function(){

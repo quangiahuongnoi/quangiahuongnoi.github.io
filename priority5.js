@@ -136,6 +136,12 @@
       liveObserver.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
     }
 
+    /* TikTok Creator — keep the helper text short and natural. */
+    var tiktokCreatorCopy = document.querySelector('#tiktokCreatorPlaceholder p');
+    if (tiktokCreatorCopy) {
+      tiktokCreatorCopy.innerHTML = 'Nhấn nút bên dưới để xem trang TikTok của Quản gia hướng nội. TikTok chỉ được tải khi bạn yêu cầu, giúp trải nghiệm nhanh và ổn định hơn.';
+    }
+
     /* ④ Easter egg — five clicks on the main name within 1.6 seconds. */
     var heroName = document.querySelector('h1');
     var clicks = 0;

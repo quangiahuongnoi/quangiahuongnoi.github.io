@@ -99,7 +99,7 @@
 <script>
 (()=>{
 'use strict';
-const $=id=>document.getElementById(id);const DEFAULT_API='https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev';let api=localStorage.getItem('adminWorkerUrl')||DEFAULT_API,token=sessionStorage.getItem('adminSession')||'',state=null,dirty=false,files={};
+const $=id=>document.getElementById(id);const DEFAULT_API='https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev';let api=cleanUrl(localStorage.getItem('adminWorkerUrl')||DEFAULT_API),token=sessionStorage.getItem('adminSession')||'',state=null,dirty=false,files={};localStorage.setItem('adminWorkerUrl',api);
 const defaults={siteName:'',profileLabel:'Profile cá nhân',role:'',description:'',aboutTitle:'',aboutText:'',footerEmail:'',shareTitle:'',shareDescription:'',links:{tiktok:'',youtube:'',discord:''},avatarImage:'',qrImage:'',shareImage:'',socialIcons:{tiktok:'',youtube:'',discord:''},fontFamily:'modern',headingFontFamily:'modern',fontScale:1,live:{enabled:false,statusLabel:'Đang live',title:'',detail:'',url:''},schedule:{enabled:false,timezone:'GMT+7',events:[]},highlights:[],partners:[],music:{enabled:false,source:'upload',title:'',artist:'',file:'',url:'',layout:'compact',volume:.35,loop:true,autoplay:true},colors:{background:'#070707',primary:'#e10600',accent:'#ff2a1a'}};
 const titles={overview:['Tổng quan','Quản lý nhanh toàn bộ website.'],live:['Live','Bật/tắt livestream và cập nhật game.'],schedule:['Stream sắp tới','Các buổi dự kiến, không cần lịch cố định.'],content:['Content','Quản lý video và clip nổi bật.'],partners:['Đối tác','Quản lý logo, mô tả và liên kết đối tác.'],profile:['Profile','Thông tin cá nhân, avatar và QR.'],social:['Social','Các kênh liên hệ và icon.'],design:['Giao diện','Font, màu sắc và metadata.'],music:['Music','Quản lý music player và upload nhạc.'],settings:['Cài đặt','Worker URL và phiên đăng nhập.']};
 function msg(el,text,type=''){if(!el)return;el.textContent=text;el.className='status '+type}function cleanUrl(v){return String(v||'').trim().replace(/\/+$/,'')}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function mark(){dirty=true;msg($('saveStatus'),'Có thay đổi chưa lưu.','')}
@@ -152,12 +152,15 @@ function openMusicForm(row){
 function closeMusicForm(){resetMusicForm();$('musicForm').classList.remove('open')}
 async function submitMusicForm(){
   const title=$('mmTitle').value.trim(),artist=$('mmArtist').value.trim(),duration=Math.max(0,parseInt($('mmDuration').value,10)||0),enabled=$('mmEnabled').checked;
+  const selectedFile=$('mmFile').files&&$('mmFile').files.length?$('mmFile').files[0]:null;
   if(!title){msg($('musicFormStatus'),'Vui lòng nhập tên bài hát.','err');return}
+  if(!musicEditId&&!selectedFile){msg($('musicFormStatus'),'Hãy chọn tệp nhạc trước khi thêm bài hát.','err');return}
   try{
-    $('musicSubmit').disabled=true;msg($('musicFormStatus'),'Đang upload...','');
-    const file=await musicFileData($('mmFile').files[0],25),cover=await musicFileData($('mmCover').files[0],3);
+    $('musicSubmit').disabled=true;msg($('musicFormStatus'),'Đang đọc tệp nhạc...','');
+    const file=await musicFileData(selectedFile,25),cover=await musicFileData($('mmCover').files[0],3);
+    if(!musicEditId&&!file)throw new Error('Không đọc được tệp nhạc. Vui lòng chọn lại file.');
     const body={title,artist,duration,enabled};
-    if(file)body.file=file;if(cover)body.cover=cover;
+    if(file){body.file=file;body.audio=file;}if(cover)body.cover=cover;
     const path=musicEditId?MUSIC_API_PREFIX+'/'+encodeURIComponent(musicEditId):MUSIC_API_PREFIX;
     const d=await req(path,{method:musicEditId?'PUT':'POST',body:JSON.stringify(body)});
     if(d.music)musicRows=Array.isArray(d.music)?d.music:musicRows;
@@ -192,7 +195,7 @@ $('addContent').onclick=()=>{state.highlights.push({label:'New Video',title:'',m
 ['siteName','profileLabel','role','description','aboutTitle','aboutText','footerEmail','shareTitle','shareDescription','tiktok','youtube','discord','liveEnabled','liveStatusLabel','liveTitle','liveDetail','liveUrl','scheduleEnabled','timezone','fontFamily','headingFontFamily','fontScale','backgroundColor','primaryColor','accentColor','musicEnabled','musicTitle','musicArtist','musicSource','musicLayout','musicUrl','musicVolume','musicLoop','musicAutoplay'].forEach(id=>$(id).addEventListener('input',mark));
 document.addEventListener('input',e=>{if(e.target.closest('#partnerList'))mark()});
 $('avatarFile').onchange=()=>fileData($('avatarFile'),'avatar',.9);$('qrFile').onchange=()=>fileData($('qrFile'),'qr',.9);$('shareFile').onchange=()=>fileData($('shareFile'),'share',.9);$('tiktokIcon').onchange=()=>fileData($('tiktokIcon'),'tiktokIcon',.45);$('youtubeIcon').onchange=()=>fileData($('youtubeIcon'),'youtubeIcon',.45);$('discordIcon').onchange=()=>fileData($('discordIcon'),'discordIcon',.45);$('audioFile').onchange=()=>fileData($('audioFile'),'audio',14);
-window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});if(api&&token){$('api').value=api;load()}else if(api)$('api').value=api;
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});$('api').value=api;$('apiSettings').value=api;if(api&&token)load();
 })();
 </script>
 </body>

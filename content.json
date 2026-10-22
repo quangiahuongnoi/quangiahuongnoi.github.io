@@ -45,6 +45,7 @@
       "url": "https://youtu.be/grmxRJrRQyc?si=F90Q5joFCvaJk_NZ"
     }
   ],
+  "partners": [],
   "youtube": {
     "enabled": true,
     "channelHandle": "quangiahuongnoi",
@@ -78,8 +79,7 @@
         "thumbnail": "https://i.ytimg.com/vi/grmxRJrRQyc/maxresdefault.jpg",
         "publishedAt": "2026-05-27T05:15:16Z"
       }
-    ],
-    "updatedAt": "2026-10-21T15:28:54.294Z"
+    ]
   },
   "tiktok": {
     "enabled": true,
@@ -113,15 +113,14 @@
         "thumbnail": "",
         "publishedAt": "2026-08-28T01:07:32.000Z"
       }
-    ],
-    "updatedAt": "2026-09-30T04:29:05.129Z"
+    ]
   },
   "music": {
     "enabled": true,
     "source": "upload",
     "title": "Nhạc nền",
     "artist": "",
-    "file": "music-admin.m4a?v=1786459423703",
+    "file": "music-admin.m4a?v=1792631085799",
     "url": "https://open.spotify.com/track/6BnPsHZv1jPbPAsQsm0s5b?si=ecc4345de8694d3e",
     "layout": "compact",
     "volume": 0.35,
@@ -133,6 +132,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-10-21T15:28:54.294Z",
-  "partners": []
+  "updatedAt": "2026-10-22T01:04:49.959Z"
 }

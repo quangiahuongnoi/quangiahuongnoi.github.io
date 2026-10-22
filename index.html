@@ -603,10 +603,8 @@ body.qghn-live .live-status{animation:qghnLivePulse 1.7s ease-in-out infinite}
         highlightsGrid.appendChild(card);
       });
 
-      var highlightNumber=2+(hasLive?1:0);
-      document.getElementById("highlights-label").textContent=("0"+highlightNumber).slice(-2)+" / Nội dung nổi bật";
-      var linkNumber=highlightNumber+(highlights.length?1:0);
-      document.getElementById("links-label").textContent=("0"+linkNumber).slice(-2)+" / Liên kết";
+      document.getElementById("highlights-label").textContent="02 / Nội dung nổi bật";
+      document.getElementById("links-label").textContent="06 / Liên kết";
       document.getElementById("donate-label").textContent=("0"+(linkNumber+1)).slice(-2)+" / Ủng hộ";
     }
     function setupMusicCollapse(box,button){

@@ -88,16 +88,34 @@
     "profileUrl": "https://www.tiktok.com/@quangiahuongnoi",
     "items": [
       {
-        "id": "6840929109687010309",
+        "id": "7509085504399232264",
         "label": "TikTok",
-        "title": "Video TikTok mới",
+        "title": "Sau hơn nửa năm hoạt động thì cuối cùng tôi đã đạt được cột mốc mà tôi mong muốn🫶🏻🐧 #hoyocreators #QGHN #tag1826 #genshinimpact #LIVE",
         "meta": "TikTok",
-        "url": "https://www.tiktok.com/@quangiahuongnoi/video/6840929109687010309",
-        "thumbnail": "",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7509085504399232264",
+        "thumbnail": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-i-photomode-sg/dfc186d8363a48009e0bf9b3560821f9~tplv-photomode-image.jpeg?dr=9616&x-expires=1793498400&x-signature=gPg3P45BbZobUlXgR2ygxDjJnic%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=9b759fb9&idc=useast8&ftpl=1",
+        "publishedAt": ""
+      },
+      {
+        "id": "7475647235380808968",
+        "label": "TikTok",
+        "title": "=))kh biết nói gì hơn #tag1826 #QGHN #xuhuong #TikTokLIVE #hoyocreators #genshinimpact",
+        "meta": "TikTok",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7475647235380808968",
+        "thumbnail": "https://p19-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/o8QZuMK9tee1ULLtIwVGZABigKMeAf54hQ4fI1~tplv-tiktokx-origin.image?dr=9636&x-expires=1793498400&x-signature=jVlqZOnG7ih4qvlB5UkxlvU82f4%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+        "publishedAt": ""
+      },
+      {
+        "id": "7688597317775052052",
+        "label": "TikTok",
+        "title": "first ace w new champion 2026🐧#qghn #valorantchampions  #fyp #tiktoklive #livehighlights",
+        "meta": "TikTok",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7688597317775052052",
+        "thumbnail": "https://p19-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/ok3gXiYqAaDE2rcqRNEBB0HzoEQYQJFzHeVsfD~tplv-tiktokx-origin.image?dr=9636&x-expires=1793498400&x-signature=rbCaKvVJWFAq8q1PDvouzo0MVqY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
         "publishedAt": ""
       }
     ],
-    "updatedAt": "2026-10-30T02:03:04.559Z"
+    "updatedAt": "2026-10-30T02:04:51.026Z"
   },
   "music": {
     "enabled": true,
@@ -116,5 +134,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-10-30T02:03:04.559Z"
+  "updatedAt": "2026-10-30T02:04:51.026Z"
 }

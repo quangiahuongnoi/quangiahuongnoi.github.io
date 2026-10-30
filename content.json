@@ -88,6 +88,15 @@
     "profileUrl": "https://www.tiktok.com/@quangiahuongnoi",
     "items": [
       {
+        "id": "7688597317775052052",
+        "label": "TikTok",
+        "title": "first ace w new champion 2026🐧#qghn #valorantchampions  #fyp #tiktoklive #livehighlights",
+        "meta": "TikTok · 23/9/2026",
+        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7688597317775052052",
+        "thumbnail": "",
+        "publishedAt": "2026-09-23T05:24:27.000Z"
+      },
+      {
         "id": "7682269878933310741",
         "label": "TikTok",
         "title": "ti nam moi ban vlr #qghn #valorantclips #xuhướng #fyp  @VALORANT VIỆT NAM",
@@ -104,18 +113,9 @@
         "url": "https://www.tiktok.com/@quangiahuongnoi/video/7678882876615609621",
         "thumbnail": "",
         "publishedAt": "2026-08-28T01:07:32.000Z"
-      },
-      {
-        "id": "7672850277287922965",
-        "label": "TikTok",
-        "title": "Kỷ Nguyên Herta - Kỷ Nguyên của máy xay sinh tố hạng nặng🐧💧#qghn #fyp #honkaistarrail #xuhuong #hoyocreators",
-        "meta": "TikTok · 12/8/2026",
-        "url": "https://www.tiktok.com/@quangiahuongnoi/video/7672850277287922965",
-        "thumbnail": "",
-        "publishedAt": "2026-08-12T00:00:00.000Z"
       }
     ],
-    "updatedAt": "2026-10-30T05:01:19.797Z"
+    "updatedAt": "2026-10-30T05:03:09.627Z"
   },
   "music": {
     "enabled": true,
@@ -134,5 +134,5 @@
     "primary": "#e10600",
     "accent": "#ff2a1a"
   },
-  "updatedAt": "2026-10-30T05:01:19.797Z"
+  "updatedAt": "2026-10-30T05:03:09.627Z"
 }

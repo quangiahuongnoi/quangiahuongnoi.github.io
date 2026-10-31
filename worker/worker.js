@@ -33,6 +33,12 @@ export default {
       if (request.method === "POST" && url.pathname === "/live/sync") {
         return await syncLiveFromSource(request, env, allowedOrigin);
       }
+      if (request.method === "GET" && (url.pathname === "/auth/tiktok/login" || url.pathname === "/tiktok/login")) {
+        return handleTikTokLogin(request, env, url);
+      }
+      if (request.method === "GET" && (url.pathname === "/auth/tiktok/callback" || url.pathname === "/tiktok/callback")) {
+        return await handleTikTokCallback(request, env, url);
+      }
 
       const session = await requireSession(request, env);
       if (!session) {
@@ -87,7 +93,7 @@ export default {
       }
     }
 
-    if (String(env.TIKTOK_AUTO_ENABLED || "").toLowerCase() === "true") {
+    if (String(env.TIKTOK_AUTO_ENABLED || "true").toLowerCase() === "true" && (env.TIKTOK_REFRESH_TOKEN || env.TIKTOK_ACCESS_TOKEN)) {
       try {
         const result = await runTikTokContentMonitor(env);
         console.log("[tiktok-monitor]", JSON.stringify(result));
@@ -323,182 +329,6 @@ async function runYouTubeContentMonitor(env) {
   };
 }
 
-
-async function runTikTokContentMonitor(env) {
-  const enabled = String(env.TIKTOK_AUTO_ENABLED || "").toLowerCase() === "true";
-  if (!enabled) {
-    return { ok: true, changed: false, enabled: false, reason: "TikTok Auto Content đang tắt." };
-  }
-
-  if (!env.APIFY_API_TOKEN) throw new HttpError(500, "Worker chưa có APIFY_API_TOKEN.");
-
-  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
-  if (!username) throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
-
-  const existing = await getGithubFile(env, "content.json");
-  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
-
-  let content;
-  try {
-    content = JSON.parse(decodeBase64(existing.content));
-  } catch {
-    throw new HttpError(500, "content.json hiện tại không hợp lệ.");
-  }
-
-  const endpoint =
-    "https://api.apify.com/v2/acts/xtracto~tiktok-profile-scraper/run-sync-get-dataset-items?token=" +
-    encodeURIComponent(env.APIFY_API_TOKEN);
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify({ username, maxPosts: 10 }),
-    cache: "no-store"
-  });
-
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error("Apify TikTok API " + response.status + (detail ? ": " + detail.slice(0, 500) : ""));
-  }
-
-  const payload = await response.json();
-  const record = Array.isArray(payload)
-    ? payload.find((item) => item && Array.isArray(item.posts)) || payload[0] || {}
-    : (payload && typeof payload === "object" ? payload : {});
-
-  let rawPosts = Array.isArray(record?.posts)
-    ? record.posts
-    : (Array.isArray(payload) ? payload : []);
-
-  // Fallback scraper nếu actor chính không trả về posts.
-  if (!rawPosts.length) {
-    const fallbackEndpoint =
-      "https://api.apify.com/v2/acts/transparent_meteorite~tiktok-public-profile-scraper/run-sync-get-dataset-items?token=" +
-      encodeURIComponent(env.APIFY_API_TOKEN);
-
-    const fallbackResponse = await fetch(fallbackEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({
-        profiles: [username],
-        resultsType: "posts",
-        resultsPerPage: 10,
-        profileSorting: "latest"
-      }),
-      cache: "no-store"
-    });
-
-    if (fallbackResponse.ok) {
-      const fallbackPayload = await fallbackResponse.json();
-      if (Array.isArray(fallbackPayload)) rawPosts = fallbackPayload;
-    }
-  }
-
-  const posts = rawPosts
-    .map((post) => {
-      const id = cleanOptionalText(
-        post?.id || post?.postId || post?.videoId || post?.video_id ||
-        post?.aweme_id || post?.awemeId || post?.itemId || post?.item_id,
-        64
-      );
-      if (!id) return null;
-
-      const desc = cleanOptionalText(
-        post?.desc || post?.caption || post?.description || post?.title ||
-        post?.text || post?.content_desc,
-        180
-      );
-
-      let createTime =
-        Number(post?.createTime) || Number(post?.create_time) ||
-        Number(post?.createdAt) || Number(post?.create_at) || 0;
-
-      if (createTime > 100000000000) createTime = Math.floor(createTime / 1000);
-
-      const publishedAt =
-        createTime > 0 && Number.isFinite(createTime)
-          ? new Date(createTime * 1000).toISOString()
-          : cleanOptionalText(
-              post?.createTimeISO || post?.publishedAt ||
-              post?.published_at || post?.createdAtISO,
-              40
-            );
-
-      const video = post?.video && typeof post.video === "object" ? post.video : {};
-      const cover = cleanOptionalUrl(
-        video?.cover || video?.coverUrl || video?.originCover ||
-        video?.origin_cover || post?.cover || post?.coverUrl ||
-        post?.cover_url || "",
-        "thumbnail TikTok"
-      );
-
-      const url =
-        cleanOptionalUrl(
-          post?.webVideoUrl || post?.postUrl || post?.web_video_url ||
-          post?.shareUrl || post?.share_url || post?.url || "",
-          "video TikTok"
-        ) ||
-        ("https://www.tiktok.com/@" + encodeURIComponent(username) +
-          "/video/" + encodeURIComponent(id));
-
-      return {
-        id,
-        label: "TikTok",
-        title: desc || "Video TikTok mới",
-        meta: "TikTok" + (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
-        url,
-        thumbnail: cover,
-        publishedAt
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => (Date.parse(b.publishedAt || "") || 0) - (Date.parse(a.publishedAt || "") || 0))
-    .slice(0, 3);
-
-  if (!posts.length) {
-    throw new Error("Apify không trả về video công khai nào của @" + username + ".");
-  }
-
-  const previousTikTok = content.tiktok && typeof content.tiktok === "object" ? content.tiktok : {};
-  const previousItems = Array.isArray(previousTikTok.items) ? previousTikTok.items : [];
-  const comparable = (items) => JSON.stringify(items.map((item) => ({
-    id: item?.id || "",
-    title: item?.title || "",
-    url: item?.url || "",
-    thumbnail: item?.thumbnail || "",
-    publishedAt: item?.publishedAt || ""
-  })));
-
-  if (comparable(previousItems) === comparable(posts)) {
-    return { ok: true, changed: false, enabled: true, username, items: posts };
-  }
-
-  content.tiktok = {
-    enabled: true,
-    username,
-    profileUrl: "https://www.tiktok.com/@" + encodeURIComponent(username),
-    items: posts,
-    updatedAt: new Date().toISOString()
-  };
-  content.updatedAt = new Date().toISOString();
-
-  await putGithubText(
-    env,
-    "content.json",
-    JSON.stringify(content, null, 2) + "\n",
-    "TikTok Auto Content: cập nhật 3 video mới nhất",
-    existing.sha
-  );
-
-  console.log("[tiktok-monitor] updated", JSON.stringify({
-    username,
-    count: posts.length,
-    ids: posts.map((post) => post.id)
-  }));
-
-  return { ok: true, changed: true, enabled: true, username, items: posts };
-}
-
 async function youtubeApiRequest(env, resource, params) {
   const query = new URLSearchParams({
     ...params,
@@ -543,18 +373,494 @@ function formatRelativeDate(value) {
   return new Date(time).toLocaleDateString("vi-VN");
 }
 
-async function runTikTokLiveMonitor(env) {
-  const enabled = String(env.LIVE_MONITOR_ENABLED || "").toLowerCase() === "true";
-  if (!enabled) {
+function handleTikTokLogin(request, env, url) {
+  const clientKey = env.TIKTOK_CLIENT_KEY;
+  if (!clientKey) {
+    return new Response(renderErrorHtml("Chưa cấu hình TIKTOK_CLIENT_KEY trong Cloudflare Worker Variables & Secrets.", "Vui lòng vào trang quản trị Cloudflare Worker > Settings > Variables and Secrets để cấu hình TIKTOK_CLIENT_KEY và TIKTOK_CLIENT_SECRET."), {
+      status: 500,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+
+  const redirectUri = env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback");
+  const state = "qghn_" + Math.random().toString(36).slice(2, 10);
+  const authUrl =
+    "https://www.tiktok.com/v2/auth/authorize/?" +
+    new URLSearchParams({
+      client_key: clientKey,
+      scope: "user.info.basic,video.list",
+      response_type: "code",
+      redirect_uri: redirectUri,
+      state: state
+    }).toString();
+
+  return Response.redirect(authUrl, 302);
+}
+
+async function handleTikTokCallback(request, env, url) {
+  const code = url.searchParams.get("code");
+  const error = url.searchParams.get("error");
+  const errorDesc = url.searchParams.get("error_description");
+
+  if (error) {
+    return new Response(renderErrorHtml("Lỗi từ TikTok: " + error, errorDesc || "Bạn đã hủy hoặc từ chối cấp quyền truy cập TikTok."), {
+      status: 400,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+
+  if (!code) {
+    return new Response(renderErrorHtml("Thiếu mã ủy quyền (code)", "TikTok không trả về authorization code hợp lệ."), {
+      status: 400,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+
+  const clientKey = env.TIKTOK_CLIENT_KEY;
+  const clientSecret = env.TIKTOK_CLIENT_SECRET;
+  if (!clientKey || !clientSecret) {
+    return new Response(renderErrorHtml("Chưa cấu hình TIKTOK_CLIENT_KEY hoặc TIKTOK_CLIENT_SECRET.", "Hãy cấu hình các bí mật này trong Cloudflare Worker Variables & Secrets."), {
+      status: 500,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+
+  const redirectUri = env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback");
+
+  const tokenResp = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Cache-Control": "no-cache"
+    },
+    body: new URLSearchParams({
+      client_key: clientKey,
+      client_secret: clientSecret,
+      code: code,
+      grant_type: "authorization_code",
+      redirect_uri: redirectUri
+    })
+  });
+
+  const tokenJson = await tokenResp.json().catch(() => ({}));
+  const tokenData = tokenJson.data || tokenJson;
+  const accessToken = tokenData.access_token;
+  const refreshToken = tokenData.refresh_token;
+
+  if (!tokenResp.ok || !accessToken) {
+    const errMsg = tokenJson.error?.message || tokenJson.message || tokenJson.description || "Không thể lấy access token từ TikTok.";
+    return new Response(renderErrorHtml("Lỗi lấy Token từ TikTok", errMsg), {
+      status: 502,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+
+  let syncMsg = "";
+  try {
+    const syncRes = await syncTikTokVideosWithToken(env, accessToken);
+    syncMsg = syncRes.changed
+      ? ("Đã cập nhật " + syncRes.items.length + " video mới nhất từ kênh lên website!")
+      : ("Đã kết nối thành công! Đang hiển thị " + syncRes.items.length + " video TikTok mới nhất.");
+  } catch (syncErr) {
+    console.error("[tiktok-oauth-sync-error]", syncErr);
+    syncMsg = "Đã kết nối tài khoản TikTok thành công! (Lưu ý: chưa tự cập nhật ngay vào content.json: " + (syncErr.message || syncErr) + ")";
+  }
+
+  return new Response(renderSuccessHtml(refreshToken, syncMsg), {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8" }
+  });
+}
+
+async function getTikTokAccessToken(env) {
+  if (env.TIKTOK_ACCESS_TOKEN && !env.TIKTOK_REFRESH_TOKEN) {
+    return env.TIKTOK_ACCESS_TOKEN;
+  }
+  if (!env.TIKTOK_REFRESH_TOKEN) {
+    throw new HttpError(500, "Worker chưa có TIKTOK_REFRESH_TOKEN.");
+  }
+  if (!env.TIKTOK_CLIENT_KEY || !env.TIKTOK_CLIENT_SECRET) {
+    throw new HttpError(500, "Worker chưa có TIKTOK_CLIENT_KEY hoặc TIKTOK_CLIENT_SECRET.");
+  }
+
+  const response = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Cache-Control": "no-cache"
+    },
+    body: new URLSearchParams({
+      client_key: env.TIKTOK_CLIENT_KEY,
+      client_secret: env.TIKTOK_CLIENT_SECRET,
+      grant_type: "refresh_token",
+      refresh_token: env.TIKTOK_REFRESH_TOKEN
+    })
+  });
+
+  const body = await response.json().catch(() => ({}));
+  const data = body.data || body;
+  if (!response.ok || !data.access_token) {
+    const msg = body.error?.message || body.message || body.description || "Lỗi làm mới TikTok access token.";
+    throw new Error("TikTok Token Refresh Failed (" + response.status + "): " + msg);
+  }
+
+  return data.access_token;
+}
+
+async function fetchTikTokVideos(accessToken, maxCount = 10) {
+  const fields = "id,title,video_description,duration,cover_image_url,share_url,create_time";
+  const response = await fetch(
+    "https://open.tiktokapis.com/v2/video/list/?fields=" + encodeURIComponent(fields),
+    {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ max_count: maxCount })
+    }
+  );
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || (body.error && body.error.code !== "ok" && body.error.code !== 0)) {
+    const errMsg = body.error?.message || body.message || "Lỗi khi gọi TikTok video list API";
+    throw new Error("TikTok Video List API (" + response.status + "): " + errMsg);
+  }
+
+  const videos = Array.isArray(body?.data?.videos) ? body.data.videos : [];
+  return videos;
+}
+
+async function syncTikTokVideosWithToken(env, accessToken) {
+  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
+  const existing = await getGithubFile(env, "content.json");
+  if (!existing) throw new HttpError(404, "Không tìm thấy content.json.");
+
+  let content;
+  try {
+    content = JSON.parse(decodeBase64(existing.content));
+  } catch {
+    throw new HttpError(500, "content.json hiện tại không hợp lệ.");
+  }
+
+  const rawVideos = await fetchTikTokVideos(accessToken, 10);
+  rawVideos.sort((a, b) => (Number(b.create_time) || 0) - (Number(a.create_time) || 0));
+
+  const items = rawVideos.slice(0, 3).map((v) => {
+    const id = cleanOptionalText(String(v.id || ""), 64);
+    const title = cleanOptionalText(v.title || v.video_description, 140) || "Video TikTok mới";
+    const publishedAt = v.create_time ? new Date(v.create_time * 1000).toISOString() : "";
+    const url = cleanOptionalUrl(v.share_url, "video TikTok") || ("https://www.tiktok.com/@" + encodeURIComponent(username) + "/video/" + encodeURIComponent(id));
+    const thumbnail = cleanOptionalUrl(v.cover_image_url, "thumbnail TikTok");
+
+    if (!id || !url) return null;
+
+    return {
+      id,
+      label: "TikTok",
+      title,
+      meta: "TikTok" + (publishedAt ? " · " + formatRelativeDate(publishedAt) : ""),
+      url,
+      thumbnail,
+      publishedAt
+    };
+  }).filter(Boolean);
+
+  const existingTikTok = content.tiktok && typeof content.tiktok === "object" ? content.tiktok : {};
+  const previousComparable = JSON.stringify({
+    enabled: existingTikTok.enabled !== false,
+    username: existingTikTok.username || username,
+    items: Array.isArray(existingTikTok.items) ? existingTikTok.items : []
+  });
+
+  const nextComparable = JSON.stringify({
+    enabled: true,
+    username,
+    items
+  });
+
+  if (previousComparable === nextComparable && items.length > 0) {
     return {
       ok: true,
       changed: false,
-      enabled: false,
-      state: "disabled",
-      reason: "TikTok Live Monitor đang tắt."
+      username,
+      items
     };
   }
 
+  content.tiktok = {
+    enabled: true,
+    username,
+    profileUrl: "https://www.tiktok.com/@" + encodeURIComponent(username),
+    items,
+    updatedAt: new Date().toISOString()
+  };
+  content.updatedAt = new Date().toISOString();
+
+  await putGithubText(
+    env,
+    "content.json",
+    JSON.stringify(content, null, 2) + "\n",
+    "TikTok Auto Content: đồng bộ video mới từ kênh @" + username
+  );
+
+  return {
+    ok: true,
+    changed: true,
+    username,
+    items
+  };
+}
+
+async function runTikTokContentMonitor(env) {
+  const enabled = String(env.TIKTOK_AUTO_ENABLED || "true").toLowerCase() === "true";
+  if (!enabled) {
+    return { ok: true, changed: false, enabled: false, reason: "TikTok Auto Content đang tắt." };
+  }
+
+  if (!env.TIKTOK_REFRESH_TOKEN && !env.TIKTOK_ACCESS_TOKEN) {
+    return {
+      ok: false,
+      reason: "Chưa cấu hình TIKTOK_REFRESH_TOKEN. Hãy đăng nhập tại /auth/tiktok/login để lấy mã."
+    };
+  }
+
+  const accessToken = await getTikTokAccessToken(env);
+  return await syncTikTokVideosWithToken(env, accessToken);
+}
+
+function renderSuccessHtml(refreshToken, syncMsg) {
+  const tokenEscaped = escapeHtml(refreshToken || "");
+  const syncEscaped = escapeHtml(syncMsg || "Đã kết nối thành công!");
+  const tokenBlock = refreshToken ? `
+    <div class="token-box">
+      <div class="token-header">
+        <span class="token-title">Mã TIKTOK_REFRESH_TOKEN (1 Năm)</span>
+        <button class="copy-btn" id="btnCopy" onclick="copyToken()">📋 Copy Token</button>
+      </div>
+      <textarea id="tokenText" readonly>${tokenEscaped}</textarea>
+      <p class="token-note">
+        💡 <b>Tự động hoá 24/7:</b> Hãy copy mã này và dán vào <b>Cloudflare Worker > Settings > Variables and Secrets</b> với tên <code>TIKTOK_REFRESH_TOKEN</code>. Worker sẽ tự động quét và đăng video mới mỗi khi bạn đăng clip mới mà không cần đăng nhập lại trong suốt 1 năm!
+      </p>
+    </div>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok OAuth Thành Công | Quản gia hướng nội</title>
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --card: #141418;
+      --border: #26262e;
+      --text: #f0f0f4;
+      --muted: #8c8c9e;
+      --primary: #fe2c55;
+      --primary-hover: #ff476d;
+      --accent: #25f4ee;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .shell {
+      max-width: 620px;
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    p.desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .sync-status {
+      background: rgba(37, 244, 238, 0.08);
+      border: 1px solid rgba(37, 244, 238, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--accent);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .token-box {
+      text-align: left;
+      background: #070709;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .token-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .token-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .copy-btn {
+      background: var(--primary);
+      border: 0;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: var(--primary-hover); }
+    textarea {
+      width: 100%;
+      height: 70px;
+      background: #0f0f13;
+      border: 1px solid #1f1f27;
+      border-radius: 8px;
+      color: #00f2fe;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 10px;
+      resize: none;
+      outline: none;
+    }
+    .token-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .btn-main { background: #fff; color: #000; }
+    .btn-main:hover { background: #e0e0e0; }
+    .btn-sub { background: #1a1a22; border: 1px solid var(--border); color: #fff; }
+    .btn-sub:hover { border-color: #555; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="badge">✓ TikTok Authorization OK</div>
+    <h1>Kết Nối TikTok Thành Công!</h1>
+    <p class="desc">Tài khoản TikTok của bạn đã được kết nối với Cloudflare Worker của website Quản gia hướng nội.</p>
+    
+    <div class="sync-status">
+      <span>🚀</span>
+      <span>${syncEscaped}</span>
+    </div>
+
+    ${tokenBlock}
+
+    <div class="actions">
+      <a class="btn btn-main" href="https://quangiahuongnoi.github.io/admin.html">Vào trang Quản trị ↗</a>
+      <a class="btn btn-sub" href="https://quangiahuongnoi.github.io/">Xem trang chủ ↗</a>
+    </div>
+  </div>
+
+  <script>
+    function copyToken() {
+      var copyText = document.getElementById("tokenText");
+      if (!copyText) return;
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value).then(function() {
+        var btn = document.getElementById("btnCopy");
+        btn.textContent = "✓ Đã copy!";
+        setTimeout(function() { btn.textContent = "📋 Copy Token"; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>`;
+}
+
+function renderErrorHtml(title, desc) {
+  const t = escapeHtml(title || "Có lỗi xảy ra");
+  const d = escapeHtml(desc || "Vui lòng thử lại sau.");
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Lỗi Xác Thực TikTok | Quản gia hướng nội</title>
+  <style>
+    body { background: #0a0a0c; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .card { background: #141418; border: 1px solid #332020; border-radius: 16px; padding: 32px; max-width: 500px; text-align: center; }
+    h1 { color: #fe2c55; font-size: 22px; margin-bottom: 12px; }
+    p { color: #a0a0b0; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+    a { display: inline-block; background: #222; border: 1px solid #444; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+    a:hover { background: #333; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>⚠️ ${t}</h1>
+    <p>${d}</p>
+    <a href="/auth/tiktok/login">↻ Thử đăng nhập lại</a>
+    <a href="https://quangiahuongnoi.github.io/admin.html" style="margin-left: 10px;">Về Admin</a>
+  </div>
+</body>
+</html>`;
+}
+
+async function runTikTokLiveMonitor(env) {
   const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
   if (!username) throw new HttpError(500, "Chưa cấu hình TIKTOK_USERNAME.");
   if (!env.TIKTOOL_API_KEY) {
@@ -567,7 +873,7 @@ async function runTikTokLiveMonitor(env) {
       "Content-Type": "application/json",
       "x-api-key": env.TIKTOOL_API_KEY
     },
-    body: JSON.stringify({ unique_id: username }),
+    body: JSON.stringify({ unique_ids: [username] }),
     cache: "no-store"
   });
 
@@ -896,24 +1202,6 @@ async function syncDiscordLive(env, live) {
   }
 }
 
-
-function cleanPartnerLogo(value) {
-  const logo = typeof value === "string" ? value.trim() : "";
-  if (!logo) return "";
-  return /^https?:\/\//i.test(logo) ? cleanOptionalUrl(logo, "logo đối tác") : cleanAsset(logo);
-}
-function cleanPartners(value) {
-  if (!Array.isArray(value)) return [];
-  return value.slice(0, 40).map((item) => ({
-    name: cleanOptionalText(item && item.name, 100),
-    logo: cleanPartnerLogo(item && item.logo),
-    category: cleanOptionalText(item && item.category, 100),
-    description: cleanOptionalText(item && item.description, 500),
-    website: item && item.website ? cleanOptionalUrl(item.website, "website đối tác") : "",
-    socialUrl: item && item.socialUrl ? cleanOptionalUrl(item.socialUrl, "mạng xã hội đối tác") : ""
-  })).filter((item) => item.name);
-}
-
 function normalizeContent(input) {
   const siteName = cleanText(input.siteName, 80, "Tên hiển thị");
   const profileLabel = cleanText(input.profileLabel || "Profile cá nhân", 60, "Nhãn profile");
@@ -954,7 +1242,6 @@ function normalizeContent(input) {
     live: cleanLive(input.live),
     schedule: cleanSchedule(input.schedule),
     highlights: cleanHighlights(input.highlights),
-    partners: cleanPartners(input.partners),
     youtube: cleanYouTube(input.youtube),
     tiktok: cleanTikTok(input.tiktok),
     music: cleanMusic(input.music),
@@ -1207,23 +1494,23 @@ function cleanYouTube(value) {
 
 function cleanTikTok(value) {
   const tiktok = value && typeof value === "object" ? value : {};
-  const items = Array.isArray(tiktok.items)
-    ? tiktok.items.slice(0, 3).map((item) => ({
-        id: cleanOptionalText(item && item.id, 64),
-        label: cleanOptionalText(item && item.label, 40) || "TikTok",
-        title: cleanOptionalText(item && item.title, 180),
-        meta: cleanOptionalText(item && item.meta, 180),
-        url: cleanOptionalUrl(item && item.url, "video TikTok"),
-        thumbnail: cleanOptionalUrl(item && item.thumbnail, "thumbnail TikTok"),
-        publishedAt: cleanOptionalText(item && item.publishedAt, 40)
-      })).filter((item) => item.id && item.title && item.url)
-    : [];
+  const items = Array.isArray(tiktok.items) ? tiktok.items.slice(0, 6).map((item) => ({
+    id: cleanOptionalText(item && item.id, 64),
+    label: cleanOptionalText(item && item.label, 40) || "TikTok",
+    title: cleanOptionalText(item && item.title, 140),
+    meta: cleanOptionalText(item && item.meta, 180),
+    url: cleanOptionalUrl(item && item.url, "video TikTok"),
+    thumbnail: cleanOptionalUrl(item && item.thumbnail, "thumbnail TikTok"),
+    publishedAt: cleanOptionalText(item && item.publishedAt, 40)
+  })).filter((item) => item.id && item.title && item.url) : [];
 
+  const username = cleanOptionalText(tiktok.username, 80) || "quangiahuongnoi";
   return {
-    enabled: !!tiktok.enabled,
-    username: cleanOptionalText(tiktok.username, 120),
-    profileUrl: cleanOptionalUrl(tiktok.profileUrl, "profile TikTok"),
-    items
+    enabled: tiktok.enabled !== false,
+    username,
+    profileUrl: cleanOptionalUrl(tiktok.profileUrl, "profile TikTok") || ("https://www.tiktok.com/@" + encodeURIComponent(username)),
+    items,
+    updatedAt: cleanOptionalText(tiktok.updatedAt, 40)
   };
 }
 

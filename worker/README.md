@@ -33,6 +33,26 @@ npx wrangler secret put SESSION_SECRET
 npx wrangler secret put GITHUB_TOKEN
 ```
 
+## TikTok Official Sync (TikTok for Developers Display API v2)
+
+Tự động quét và cập nhật các video TikTok mới nhất từ kênh `@quangiahuongnoi` lên website:
+
+1. **Cấu hình trên TikTok for Developers:**
+   - App permissions: `user.info.basic`, `video.list`
+   - Login Kit Web Redirect URI:
+     `https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev/auth/tiktok/callback`
+2. **Secrets cần thêm trên Cloudflare Worker:**
+   - `TIKTOK_CLIENT_KEY`: Client Key từ TikTok App.
+   - `TIKTOK_CLIENT_SECRET`: Client Secret từ TikTok App.
+   - `TIKTOK_REFRESH_TOKEN`: Mã Refresh Token (thời hạn 1 năm, nhận được sau khi bấm liên kết kết nối lần đầu).
+3. **Các biến thường (Variables):**
+   - `TIKTOK_AUTO_ENABLED` = `true`
+   - `TIKTOK_REDIRECT_URI` = `https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev/auth/tiktok/callback`
+4. **Quy trình kích hoạt kết nối:**
+   - Mở link: `https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev/auth/tiktok/login` (hoặc bấm nút "🔗 Kết nối TikTok" trong tab Content của trang `/admin.html`).
+   - Đăng nhập và ủy quyền tài khoản TikTok.
+   - Hệ thống sẽ tự động quét và đăng video mới ngay lập tức, đồng thời trả về mã `TIKTOK_REFRESH_TOKEN` để bạn lưu vào Worker Secrets nhằm duy trì quét tự động 24/7.
+
 ## TikTok Live Monitor (Cloudflare Cron)
 
 Worker có thêm bộ theo dõi LIVE định kỳ:

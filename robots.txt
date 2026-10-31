@@ -1,4 +1,6 @@
 User-agent: *
+Disallow: /admin*.html
+Disallow: /dashboard.html
 Allow: /
 
 Sitemap: https://quangiahuongnoi.github.io/sitemap.xml

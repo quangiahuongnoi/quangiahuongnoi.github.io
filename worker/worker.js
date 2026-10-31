@@ -374,7 +374,7 @@ function formatRelativeDate(value) {
 }
 
 function handleTikTokLogin(request, env, url) {
-  const clientKey = env.TIKTOK_CLIENT_KEY;
+  const clientKey = String(env.TIKTOK_CLIENT_KEY || "").trim();
   if (!clientKey) {
     return new Response(renderErrorHtml("Chưa cấu hình TIKTOK_CLIENT_KEY trong Cloudflare Worker Variables & Secrets.", "Vui lòng vào trang quản trị Cloudflare Worker > Settings > Variables and Secrets để cấu hình TIKTOK_CLIENT_KEY và TIKTOK_CLIENT_SECRET."), {
       status: 500,
@@ -382,7 +382,7 @@ function handleTikTokLogin(request, env, url) {
     });
   }
 
-  const redirectUri = env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback");
+  const redirectUri = String(env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback")).trim();
   const state = "qghn_" + Math.random().toString(36).slice(2, 10);
   const authUrl =
     "https://www.tiktok.com/v2/auth/authorize/?" +
@@ -416,8 +416,8 @@ async function handleTikTokCallback(request, env, url) {
     });
   }
 
-  const clientKey = env.TIKTOK_CLIENT_KEY;
-  const clientSecret = env.TIKTOK_CLIENT_SECRET;
+  const clientKey = String(env.TIKTOK_CLIENT_KEY || "").trim();
+  const clientSecret = String(env.TIKTOK_CLIENT_SECRET || "").trim();
   if (!clientKey || !clientSecret) {
     return new Response(renderErrorHtml("Chưa cấu hình TIKTOK_CLIENT_KEY hoặc TIKTOK_CLIENT_SECRET.", "Hãy cấu hình các bí mật này trong Cloudflare Worker Variables & Secrets."), {
       status: 500,
@@ -425,7 +425,7 @@ async function handleTikTokCallback(request, env, url) {
     });
   }
 
-  const redirectUri = env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback");
+  const redirectUri = String(env.TIKTOK_REDIRECT_URI || (url.origin + "/auth/tiktok/callback")).trim();
 
   const tokenResp = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
     method: "POST",
@@ -473,13 +473,18 @@ async function handleTikTokCallback(request, env, url) {
 }
 
 async function getTikTokAccessToken(env) {
-  if (env.TIKTOK_ACCESS_TOKEN && !env.TIKTOK_REFRESH_TOKEN) {
-    return env.TIKTOK_ACCESS_TOKEN;
+  const accessToken = String(env.TIKTOK_ACCESS_TOKEN || "").trim();
+  const refreshToken = String(env.TIKTOK_REFRESH_TOKEN || "").trim();
+  const clientKey = String(env.TIKTOK_CLIENT_KEY || "").trim();
+  const clientSecret = String(env.TIKTOK_CLIENT_SECRET || "").trim();
+
+  if (accessToken && !refreshToken) {
+    return accessToken;
   }
-  if (!env.TIKTOK_REFRESH_TOKEN) {
+  if (!refreshToken) {
     throw new HttpError(500, "Worker chưa có TIKTOK_REFRESH_TOKEN.");
   }
-  if (!env.TIKTOK_CLIENT_KEY || !env.TIKTOK_CLIENT_SECRET) {
+  if (!clientKey || !clientSecret) {
     throw new HttpError(500, "Worker chưa có TIKTOK_CLIENT_KEY hoặc TIKTOK_CLIENT_SECRET.");
   }
 
@@ -490,10 +495,10 @@ async function getTikTokAccessToken(env) {
       "Cache-Control": "no-cache"
     },
     body: new URLSearchParams({
-      client_key: env.TIKTOK_CLIENT_KEY,
-      client_secret: env.TIKTOK_CLIENT_SECRET,
+      client_key: clientKey,
+      client_secret: clientSecret,
       grant_type: "refresh_token",
-      refresh_token: env.TIKTOK_REFRESH_TOKEN
+      refresh_token: refreshToken
     })
   });
 
@@ -1322,7 +1327,11 @@ async function getGithubFile(env, path) {
   const branch = env.GITHUB_BRANCH || DEFAULTS.branch;
   const response = await fetch(githubApi(env, path) + "?ref=" + encodeURIComponent(branch) + "&t=" + Date.now(), { headers: githubHeaders(env) });
   if (response.status === 404) return null;
-  if (!response.ok) throw new HttpError(502, "GitHub không cho phép đọc repo. Hãy kiểm tra GITHUB_TOKEN.");
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const detail = errorBody?.message ? " (" + response.status + ": " + errorBody.message + ")" : " (" + response.status + ")";
+    throw new HttpError(502, "GitHub không cho phép đọc repo. Hãy kiểm tra GITHUB_TOKEN" + detail + ".");
+  }
   return response.json();
 }
 

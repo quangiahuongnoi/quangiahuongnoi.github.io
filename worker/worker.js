@@ -30,8 +30,8 @@ export default {
       if (request.method === "POST" && url.pathname === "/login") {
         return await login(request, env, allowedOrigin);
       }
-      if (request.method === "POST" && url.pathname === "/live/sync") {
-        return await syncLiveFromSource(request, env, allowedOrigin);
+      if (request.method === "POST" && (url.pathname === "/live/sync" || url.pathname === "/live")) {
+        return await syncLiveFromSource(request, env, allowedOrigin, url);
       }
       if (request.method === "GET" && (url.pathname === "/auth/tiktok/login" || url.pathname === "/tiktok/login")) {
         return handleTikTokLogin(request, env, url);
@@ -1116,19 +1116,27 @@ function normalizeGameTag(value) {
   return (packed ? packed[1] : text).trim().slice(0, 80);
 }
 
-async function syncLiveFromSource(request, env, allowedOrigin) {
-  if (!env.LIVE_SYNC_TOKEN || env.LIVE_SYNC_TOKEN.length < 16) {
-    throw new HttpError(500, "Worker chưa có LIVE_SYNC_TOKEN.");
+async function syncLiveFromSource(request, env, allowedOrigin, requestUrl) {
+  const expectedToken = env.LIVE_SYNC_TOKEN || env.LIVE_WEBHOOK_SECRET || env.ADMIN_PASSWORD;
+  if (!expectedToken) {
+    throw new HttpError(500, "Worker chưa cấu hình LIVE_SYNC_TOKEN, LIVE_WEBHOOK_SECRET hoặc ADMIN_PASSWORD.");
   }
 
   const authorization = request.headers.get("Authorization") || "";
-  if (!authorization.startsWith("Bearer ")) {
-    return json({ ok: false, error: "Thiếu LIVE_SYNC_TOKEN." }, 401, allowedOrigin);
+  const webhookSecret = request.headers.get("X-Live-Webhook-Secret") || "";
+  const queryToken = requestUrl ? requestUrl.searchParams.get("token") || "" : "";
+
+  let supplied = "";
+  if (authorization.startsWith("Bearer ")) supplied = authorization.slice(7).trim();
+  else if (webhookSecret) supplied = webhookSecret.trim();
+  else if (queryToken) supplied = queryToken.trim();
+
+  if (!supplied) {
+    return json({ ok: false, error: "Thiếu token xác thực (cần Header 'Authorization: Bearer <token>' hoặc 'X-Live-Webhook-Secret')." }, 401, allowedOrigin);
   }
 
-  const token = authorization.slice(7).trim();
-  if (!(await secureEqual(token, env.LIVE_SYNC_TOKEN))) {
-    return json({ ok: false, error: "LIVE_SYNC_TOKEN không hợp lệ." }, 401, allowedOrigin);
+  if (!(await secureEqual(supplied, expectedToken))) {
+    return json({ ok: false, error: "Token xác thực không hợp lệ." }, 401, allowedOrigin);
   }
 
   const body = await readJson(request, 64_000);
@@ -1142,14 +1150,25 @@ async function syncLiveFromSource(request, env, allowedOrigin) {
     throw new HttpError(500, "content.json hiện tại không hợp lệ.");
   }
 
-  content.live = cleanLive(body && typeof body === "object" ? body : {});
+  const isLive = body?.enabled !== undefined ? Boolean(body.enabled) : Boolean(body?.live);
+  const username = String(env.TIKTOK_USERNAME || "quangiahuongnoi").trim().replace(/^@+/, "");
+  const defaultLiveUrl = "https://www.tiktok.com/@" + encodeURIComponent(username) + "/live";
+
+  content.live = {
+    enabled: isLive,
+    statusLabel: cleanOptionalText(body?.statusLabel, 40) || (isLive ? "Đang live" : "Chưa lên sóng"),
+    game: cleanOptionalText(body?.game, 80) || (isLive ? (content.live?.game || "") : ""),
+    title: cleanOptionalText(body?.title, 120) || (isLive ? (content.live?.title || "Đang livestream trên TikTok") : "Hẹn bạn ở buổi live tiếp theo."),
+    detail: cleanOptionalText(body?.detail, 220) || (isLive ? (content.live?.detail || "Vào xem và trò chuyện cùng mình nhé.") : "Theo dõi lịch bên cạnh để không bỏ lỡ nhé."),
+    url: cleanOptionalUrl(body?.url, "xem live") || (isLive ? defaultLiveUrl : "")
+  };
   content.updatedAt = new Date().toISOString();
 
   await putGithubText(
     env,
     "content.json",
     JSON.stringify(content, null, 2) + "\n",
-    "Đồng bộ trạng thái LIVE từ nguồn phát"
+    isLive ? "OBS: Tự động BẬT trạng thái LIVE" : "OBS: Tự động TẮT trạng thái LIVE"
   );
 
   let discord = { ok: false, configured: false, error: "Discord Bot chưa được cấu hình trong Worker." };

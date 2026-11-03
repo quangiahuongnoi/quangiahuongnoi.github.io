@@ -12,7 +12,7 @@ SITE_URL = "https://quangiahuongnoi.github.io"
 TIKTOK_USERNAME = "quangiahuongnoi"
 TIKTOK_AUTO_ENABLED = "true"
 TIKTOK_REDIRECT_URI = "https://quangiahuongnoi-admin-api.quangiahuongnoi.workers.dev/auth/tiktok/callback"
-LIVE_MONITOR_ENABLED = "true"
+LIVE_MONITOR_ENABLED = "false"
   YOUTUBE_AUTO_ENABLED = "true"
   YOUTUBE_CHANNEL_HANDLE = "quangiahuongnoi"
 

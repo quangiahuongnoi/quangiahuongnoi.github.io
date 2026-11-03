@@ -78,7 +78,11 @@ export default {
     if (String(env.LIVE_MONITOR_ENABLED || "").toLowerCase() === "true") {
       try {
         const result = await runTikTokLiveMonitor(env);
-        console.log("[live-monitor]", JSON.stringify(result));
+        if (result && result.ok === false) {
+          console.warn("[live-monitor]", result.reason || JSON.stringify(result));
+        } else {
+          console.log("[live-monitor]", JSON.stringify(result));
+        }
       } catch (error) {
         console.error("[live-monitor] scheduled check failed:", error?.message || error);
       }
@@ -884,6 +888,13 @@ async function runTikTokLiveMonitor(env) {
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
+    if (response.status === 403) {
+      return {
+        ok: false,
+        status: 403,
+        reason: "TikTool API key đã hết hạn dùng thử (Evaluation period ended). Vui lòng đổi LIVE_MONITOR_ENABLED='false' trong Worker Variables hoặc gia hạn TikTool tại https://tik.tools/pricing."
+      };
+    }
     throw new Error("TikTool API " + response.status + (detail ? ": " + detail.slice(0, 300) : ""));
   }
 
